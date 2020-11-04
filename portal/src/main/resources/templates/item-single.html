@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="index::head">
+
+</head>
+<body>
+<th:block th:replace="index::script"></th:block>
+
+<nav th:replace="index :: navbar"></nav>
+<div class="container" th:object="${auction}">
+    <h3 th:text="*{title}">Auction title</h3>
+    <table style="width: fit-content">
+        <tr>
+            <td>
+                <div id="carousel" class="carousel slide" data-ride="carousel" style="width: 90%">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active" th:each="image: ${auction.imagesURL}" th:if="${image.isMainPhoto()}">
+                            <img class="img-carousel" th:src="${image.url}" th:alt="${auction.title}">
+                        </div>
+                        <div class="item" th:each="image: ${auction.imagesURL}" th:unless="${image.isMainPhoto()}">
+                            <img class="img-carousel" th:src="${image.url}" th:alt="${auction.title}">
+                        </div>
+                    </div>
+                    <!-- Controls -->
+                    <a class="left carousel-control" href="#carousel" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="right carousel-control" href="#carousel" role="button" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </td>
+            <td class="width-40per" th:object="${auctionOwner}">
+                <div class="tx-al-cent">
+                    <div>
+                        <a class="f-col-black f-wgh-200">Użytkownik:
+                            <a class="f-col-black f-wgh-600 f-size-large padd-5per" th:text="*{name}">User name</a>
+                        </a>
+                    </div>
+                    <div>
+                        <a class="f-col-black f-wgh-200">Lokalizacja:
+                            <a class="f-col-black f-wgh-600 f-size-large padd-5per" th:text="${auction.localization}">Localization</a>
+                        </a>
+                    </div>
+                    <div>
+                        <h5><a class="label label-primary" th:href="@{/showAuctions/{user}(user=*{name})}">Inne ogłoszenia użytkownika</a></h5>
+                    </div>
+                    <div>
+                        <h2>
+                            <button type="button" class="btn btn-warning">Wyślij wiadomość</button>
+                        </h2>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div>
+        <h4><p th:text="${auction.description}"></p></h4>
+    </div>
+</div>
+
+<div>
+
+
+</div>
+</body>
+</html>

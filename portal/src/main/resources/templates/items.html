@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="index::head">
+
+</head>
+<body>
+<th:block th:replace="index::script"></th:block>
+<nav th:replace="index :: navbar"></nav>
+<div class="container">
+    <table class="table-list">
+        <tr class="table-row" th:each="auction: ${auctions}">
+            <td class="table-data-image b-col-green-grey">
+                <a th:href="@{/auction/{id}(id=${auction.id})}"/>
+                    <img th:each="image:${auction.imagesURL}" class="list-image" th:if="${image.isMainPhoto()}"
+                         th:src="${image.url}">
+            </td>
+            <td class="table-data v-al-top b-col-green-grey tx-align-left padd-10px">
+                <div>
+                        <a th:href="@{/auction/{id}(id=${auction.id})}" class="f-col-black f-wgh-600" th:text="${auction.getTitle()}"></a><br><br>
+                        <a th:href="@{/auction/{id}(id=${auction.id})}" class="f-col-black f-wgh-200" th:text="${#strings.substring(auction.description,0,300)}"></a>
+                </div>
+                <div sec:authorize="isAuthenticated()">
+                    <button type="button" th:onclick="'javascript:httpGet('+ ${auction.id} +');'"
+                            class="glyphicon glyphicon-heart-empty v-al-bottom float-right" aria-hidden="true"
+                            title="Dodaj do obserwowanych"></button>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    function httpGet(id) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", '/addToObserved/' + id, false); // false for synchronous request
+        xmlHttp.send(null);
+
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

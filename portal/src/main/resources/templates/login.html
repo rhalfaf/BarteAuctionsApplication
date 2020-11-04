@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="index::head">
+</head>
+<body>
+<th:block th:replace="index::script"></th:block>
+<nav th:replace="index :: navbar"></nav>
+
+<div class="container">
+
+    <h3>Zaloguj się.</h3>
+    <p th:if="${loginError}" class="error">Wrong user or password</p>
+    <form th:action="@{/login}" method="post" class="form-inline">
+        <div class="form-group">
+            <label class="sr-only" for="username">Nazwa użytkownika</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Nazwa użytkownika">
+        </div>
+        <div class="form-group">
+            <label class="sr-only" for="password">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Hasło">
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox"> Remember me
+            </label>
+        </div>
+
+            <button type="submit" class="btn btn-default">Zaloguj się</button>
+
+    </form>
+    <div>
+        <p>Nie masz jeszcze konta? <a th:href="@{/register}">Zarejstruj się</a></p>
+    </div>
+
+</div>
+</body>
+</html>
