@@ -3,13 +3,19 @@ package com.barterAuctions.portal.models.DTO;
 import com.barterAuctions.portal.models.auction.Category;
 import com.barterAuctions.portal.models.auction.ImageURLs;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
 public class AuctionDTO {
     private Long id;
+    @NotBlank(message = "To pole nie może być puste.")
     private String title;
+    @NotBlank(message = "To pole nie może być puste.")
     private String localization;
+    @NotBlank(message = "To pole nie może być puste.")
     private String description;
     private List<ImageURLs> imagesURL;
     private BigDecimal price;

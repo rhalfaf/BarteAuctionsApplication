@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +36,11 @@ public class AuctionService {
 
 
     public AuctionDTO findById(long id) {
-        return modelMapper.map(auctionRepository.findById(id), AuctionDTO.class);
+        Auction auction = auctionRepository.findById(id);
+        if (auction == null) {
+            throw new NoSuchElementException("Wybrana aukcja nie istnieje.");
+        }
+        return modelMapper.map(auction, AuctionDTO.class);
     }
 
     public UserAuctionDTO findAuctionOwner(AuctionDTO a) {
@@ -46,6 +49,9 @@ public class AuctionService {
 
     public List<AuctionDTO> findAllByCategory(String category) {
         var tmpCategory = categoryService.findByName(category);
+        if (tmpCategory == null) {
+            throw new NoSuchElementException("Wybrana kategoria nie istnieje.");
+        }
         return auctionRepository.findAllByCategory(tmpCategory)
                 .stream()
                 .map(auction -> modelMapper.map(auction, AuctionDTO.class))
@@ -75,5 +81,15 @@ public class AuctionService {
         return auctionRepository.saveAndFlush(a);
     }
 
-
+    @Transactional
+    public AuctionDTO addNewAuction(AuctionDTO auction, String category, String userName) {
+        auction.setCategory(categoryService.findByName(category));
+        Auction entityAuction = modelMapper.map(auction, Auction.class);
+        entityAuction.setStartDate(LocalDate.now());
+        entityAuction.setExpireDate(LocalDate.now().plusDays(7));
+        entityAuction.setActive(true);
+        User user = userService.findByName(userName);
+        user.getAuctions().add(entityAuction);
+        return modelMapper.map(entityAuction, AuctionDTO.class);
+    }
 }

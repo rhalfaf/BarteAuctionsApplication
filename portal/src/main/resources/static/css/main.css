@@ -55,6 +55,10 @@ a:hover{
 .f-col-black{
     color: black;
 }
+.f-col-red{
+    color: red;
+}
+
 .f-size-large{
     font-size: large;
 }
@@ -63,6 +67,9 @@ a:hover{
 }
 .tx-align-left{
     text-align: left;
+}
+.tx-align-right{
+    text-align: right;
 }
 .padd-10px{
     padding: 10px;
@@ -88,6 +95,9 @@ a:hover{
 .b-col-green-grey{
     background: #eaefed;
 }
+.mx-width-25prc{
+    max-width: 25%;
+}
 .img-carousel {
     width: 31em;
     height: 18em !important;
@@ -104,6 +114,7 @@ a:hover{
     min-height: 1em;
 
 }
+
 .index-content {
     display: inline-block;
     min-height: 1em;

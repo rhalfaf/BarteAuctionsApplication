@@ -1,5 +1,6 @@
 package com.barterAuctions.portal.models.auction;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity

@@ -39,14 +39,14 @@
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">Kategorie <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li th:each="category: ${categories}"><a class="dropdown-item"
                                                                  th:href="@{/list/{category}(category = ${category.getCategoryName()})}"
-                                                                 th:text="${category.categoryName}"></a></li>
+                                                                 th:text="${category.categoryName}"></a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -59,11 +59,23 @@
             <ul class="nav navbar-nav navbar-right">
                 <li sec:authorize="!isAuthenticated()"><a th:href="@{/login}">Login</a></li>
                 <li sec:authorize="isAuthenticated()"><a th:href="@{/logout}">Logout</a></li>
-                <li sec:authorize="isAuthenticated()"><a sec:authentication="name"></a></li>
+                <li class="dropdown" sec:authorize="isAuthenticated()">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false"
+                       sec:authentication="name">...
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/showAuctions/{user}(user=${#authentication.name})}">Moje aukcje</a></li>
+                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/addNewAuction}">Dodaj aukcje</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
+<div class="container bg-warning tx-al-cent padd-10px f-wgh-600"
+     th:if="${error}"><a class="bg-warning  f-col-red" th:text="${error}"></a></div>
 <div class="index-total-content">
     <div class="index-side-menu">
         <ul class="side-menu-list">

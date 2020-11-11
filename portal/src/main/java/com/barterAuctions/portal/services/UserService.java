@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,6 +74,9 @@ public class UserService implements UserDetailsService {
 
     public List<AuctionDTO> findAllAuctionsOfAUser(String username){
         User user = userRepository.findByName(username);
+        if(user == null){
+            throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
+        }
         return user.getAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
     }
 

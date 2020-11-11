@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="index::head">
+
+</head>
+<body>
+<th:block th:replace="index::script"></th:block>
+
+<nav th:replace="index :: navbar"></nav>
+<div class="container">
+    <form action="#" th:action="@{/saveAuction}" method="post" th:object="${auction}">
+        <div class="form-group">
+            <label for="CategoryName">Wybierz kategorię</label><br>
+            <select id="CategoryName" name="categoryName" required>
+                <option th:value="${null}">-wybierz kategorię-</option>
+                <option class="form-control" th:each="category: ${categories}"
+                        th:value="${category.categoryName}"
+                        th:text="${category.categoryName}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="AuctionTitle">Tytuł aukcji</label>
+            <input th:field="*{title}" maxlength="100" type="text" class="form-control" id="AuctionTitle"
+                   placeholder="Tytuł aukcji maksymalnie 100 znaków.">
+            <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color: red">Title Error</span>
+        </div>
+        <div class="form-group">
+            <label for="Description">Opis</label>
+            <textarea th:field="*{description}" rows="10" maxlength="2050" type="text" class="form-control" id="Description"
+                      placeholder="Opis"></textarea>
+            <label class="tx-align-right" id="counter">2050</label>
+            <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color: red">Description Error</span>
+
+        </div>
+        <div class="form-group">
+            <label for="Localization">Lokalizacja</label>
+            <input th:field="*{localization}" maxlength="99" type="text" class="form-control" id="Localization" placeholder="Lokalizacja">
+            <span th:if="${#fields.hasErrors('localization')}" th:errors="*{localization}" style="color: red">Localization Error</span>
+        </div>
+        <div class="form-group">
+            <label for="Price">Cena</label>
+            <input th:field="*{price}" type="number" step="0.01" class="form-control mx-width-25prc tx-align-right" id="Price" placeholder="Cena PLN" title="Podaj cenę jeżeli jesteś zainteresowany sprzedażą.">
+        </div>
+        <button type="submit" class="btn btn-default">Dodaj auckję</button>
+    </form>
+</div>
+<script>
+
+    const textarea = document.querySelector("textarea");
+    const charCounter = document.getElementById("counter")
+    charCounter.innerHTML = 'Maksymalna liczba znaków to 2050'
+    textarea.addEventListener("input", event => {
+        const target = event.currentTarget;
+        const maxLength = target.getAttribute("maxlength");
+        const currentLength = target.value.length;
+
+        if (currentLength >= maxLength) {
+            charCounter.innerHTML = `Osiągnięto maksymalną liczbę znaków. `;
+        } else {
+            charCounter.innerHTML = `Pozostało znaków ${maxLength - currentLength}`;
+        }
+    })
+</script>
+</body>
+</html>
