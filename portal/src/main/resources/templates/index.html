@@ -92,8 +92,8 @@
         <div class="row">
             <div th:each="thumbnail: ${thumbnails}" class="col-sm-6 col-md-4">
                 <a th:href="@{/auction/{id}(id=${thumbnail.id})}"/>
-                <div class="thumbnail" th:each="image: ${thumbnail.imagesURL}" th:if="${image.isMainPhoto()}">
-                    <img th:src="${image.url}" th:alt="${thumbnail.getTitle()}">
+                <div class="thumbnail" th:each="image: ${thumbnail.images}" th:if="${image.isMainPhoto()}">
+                    <img th:src="@{${'/getImage/'+ image.id}}" th:alt="${thumbnail.getTitle()}">
                     <div class="caption">
                         <h3 th:text="${thumbnail.title}">Thumbnail label</h3>
                     </div>

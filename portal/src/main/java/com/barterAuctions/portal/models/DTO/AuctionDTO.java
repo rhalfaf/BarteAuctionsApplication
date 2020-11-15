@@ -1,11 +1,9 @@
 package com.barterAuctions.portal.models.DTO;
 
 import com.barterAuctions.portal.models.auction.Category;
-import com.barterAuctions.portal.models.auction.ImageURLs;
+import com.barterAuctions.portal.models.auction.Image;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -17,7 +15,7 @@ public class AuctionDTO {
     private String localization;
     @NotBlank(message = "To pole nie może być puste.")
     private String description;
-    private List<ImageURLs> imagesURL;
+    private List<Image> images;
     private BigDecimal price;
     private Category category;
 
@@ -53,12 +51,12 @@ public class AuctionDTO {
         this.description = description;
     }
 
-    public List<ImageURLs> getImagesURL() {
-        return imagesURL;
+    public List<Image> getImages() {
+        return images;
     }
 
-    public void setImagesURL(List<ImageURLs> imagesURL) {
-        this.imagesURL = imagesURL;
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 
     public BigDecimal getPrice() {
@@ -76,6 +74,8 @@ public class AuctionDTO {
     public void setCategory(Category category) {
         this.category = category;
     }
+
+
 
 
 

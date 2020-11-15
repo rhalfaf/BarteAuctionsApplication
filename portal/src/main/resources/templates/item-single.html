@@ -14,11 +14,11 @@
             <td>
                 <div id="carousel" class="carousel slide" data-ride="carousel" style="width: 90%">
                     <div class="carousel-inner" role="listbox">
-                        <div class="item active" th:each="image: ${auction.imagesURL}" th:if="${image.isMainPhoto()}">
-                            <img class="img-carousel" th:src="${image.url}" th:alt="${auction.title}">
+                        <div class="item active" th:each="image: ${auction.images}" th:if="${image.isMainPhoto()}">
+                            <img class="img-carousel" th:src="@{${'/getImage/'+ image.id}}" th:alt="${auction.title}">
                         </div>
-                        <div class="item" th:each="image: ${auction.imagesURL}" th:unless="${image.isMainPhoto()}">
-                            <img class="img-carousel" th:src="${image.url}" th:alt="${auction.title}">
+                        <div class="item" th:each="image: ${auction.images}" th:unless="${image.isMainPhoto()}">
+                            <img class="img-carousel" th:src="@{${'/getImage/'+ image.id}}" th:alt="${auction.title}">
                         </div>
                     </div>
                     <!-- Controls -->

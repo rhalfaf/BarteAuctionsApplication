@@ -3,15 +3,15 @@ package com.barterAuctions.portal.services;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
-import com.barterAuctions.portal.models.auction.Category;
+import com.barterAuctions.portal.models.auction.Image;
 import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.repositories.AuctionRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,6 +44,7 @@ public class AuctionService {
     }
 
     public UserAuctionDTO findAuctionOwner(AuctionDTO a) {
+
         return userService.findByAuctions(a);
     }
 
@@ -82,7 +83,17 @@ public class AuctionService {
     }
 
     @Transactional
-    public AuctionDTO addNewAuction(AuctionDTO auction, String category, String userName) {
+    public AuctionDTO addNewAuction(AuctionDTO auction, String category, String userName, MultipartFile[] images) {
+        ArrayList<Image> auctionImages = new ArrayList<>();
+        Arrays.stream(images).sequential().forEach(file -> {
+            try {
+                Image i = new Image(file.getOriginalFilename(), false, file.getContentType(), file.getBytes());
+                auctionImages.add(i);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        auction.setImages(auctionImages);
         auction.setCategory(categoryService.findByName(category));
         Auction entityAuction = modelMapper.map(auction, Auction.class);
         entityAuction.setStartDate(LocalDate.now());

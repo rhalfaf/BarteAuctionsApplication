@@ -8,7 +8,7 @@
 
 <nav th:replace="index :: navbar"></nav>
 <div class="container">
-    <form action="#" th:action="@{/saveAuction}" method="post" th:object="${auction}">
+    <form action="#" th:action="@{/saveAuction}" method="post" th:object="${auction}" enctype="multipart/form-data">
         <div class="form-group">
             <label for="CategoryName">Wybierz kategorię</label><br>
             <select id="CategoryName" name="categoryName" required>
@@ -40,6 +40,12 @@
         <div class="form-group">
             <label for="Price">Cena</label>
             <input th:field="*{price}" type="number" step="0.01" class="form-control mx-width-25prc tx-align-right" id="Price" placeholder="Cena PLN" title="Podaj cenę jeżeli jesteś zainteresowany sprzedażą.">
+        </div>
+        <div class="form-group" >
+
+            <label for="auctionImages">Dodaj zdjęcia</label>
+            <input id="auctionImages" type="file" name="auctionImages" class="form-control-file" multiple accept="image/png, image/bmp, image/jpeg">
+            <span class="f-col-red" th:if="${error}" th:text="${error}"></span>
         </div>
         <button type="submit" class="btn btn-default">Dodaj auckję</button>
     </form>

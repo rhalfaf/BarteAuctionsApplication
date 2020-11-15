@@ -12,8 +12,8 @@
         <tr class="table-row" th:each="auction: ${auctions}">
             <td class="table-data-image b-col-green-grey">
                 <a th:href="@{/auction/{id}(id=${auction.id})}"/>
-                    <img th:each="image:${auction.imagesURL}" class="list-image" th:if="${image.isMainPhoto()}"
-                         th:src="${image.url}">
+                    <img th:each="image:${auction.images}" class="list-image" th:if="${image.isMainPhoto()}"
+                         th:src="@{${'/getImage/'+ image.id}}">
             </td>
             <td class="table-data v-al-top b-col-green-grey tx-align-left padd-10px">
                 <div>

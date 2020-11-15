@@ -16,7 +16,7 @@ public class Auction {
     @Lob
     private String description;
     @OneToMany(cascade = CascadeType.ALL)
-    private List<ImageURLs> imagesURL;
+    private List<Image> images;
     private BigDecimal price;
     private boolean isActive;
     private LocalDate startDate;
@@ -76,14 +76,6 @@ public class Auction {
         this.description = description;
     }
 
-    public List<ImageURLs> getImagesURL() {
-        return imagesURL;
-    }
-
-    public void setImagesURL(List<ImageURLs> imageURLS) {
-        this.imagesURL = imageURLS;
-    }
-
     public BigDecimal getPrice() {
         return price;
     }
@@ -106,5 +98,13 @@ public class Auction {
 
     public void setLocalization(String localization) {
         this.localization = localization;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }
