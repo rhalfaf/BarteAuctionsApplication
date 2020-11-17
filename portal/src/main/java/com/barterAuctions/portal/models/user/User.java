@@ -22,13 +22,15 @@ public class User {
     @NotNull
     @NotBlank(message = "Proszę podać email.")
     @Email(regexp = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])",
-    message = "Nie poprawny format adresu email")
+            message = "Nie poprawny format adresu email")
     private String email;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<Auction> auctions;
     @OneToOne(cascade = CascadeType.ALL)
     private Authorities authorities;
-    @OneToMany(cascade = CascadeType.MERGE)
+    @OneToMany
     private List<Auction> observedAuctions;
 
     public User() {
@@ -72,6 +74,16 @@ public class User {
 
     public void setAuctions(List<Auction> auctions) {
         this.auctions = auctions;
+    }
+
+    public void addAuction(Auction a){
+        auctions.add(a);
+        a.setUser(this);
+    }
+
+    public void removeAuction(Auction a){
+        auctions.remove(a);
+        a.setUser(null);
     }
 
     public boolean isEnabled() {

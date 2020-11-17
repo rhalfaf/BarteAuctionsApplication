@@ -8,7 +8,7 @@ import javax.persistence.*;
 public class Authorities implements GrantedAuthority {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @OneToOne
     //@JoinColumn(name = "USER_NAME", referencedColumnName = "NAME")

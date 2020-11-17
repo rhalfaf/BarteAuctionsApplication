@@ -68,6 +68,7 @@
                     <ul class="dropdown-menu">
                         <li class="dropdown-item"><a class="dropdown-item" th:href="@{/showAuctions/{user}(user=${#authentication.name})}">Moje aukcje</a></li>
                         <li class="dropdown-item"><a class="dropdown-item" th:href="@{/addNewAuction}">Dodaj aukcje</a></li>
+                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/getObservedAuctions}">Obserwowane auckje</a></li>
                     </ul>
                 </li>
             </ul>
@@ -92,8 +93,9 @@
         <div class="row">
             <div th:each="thumbnail: ${thumbnails}" class="col-sm-6 col-md-4">
                 <a th:href="@{/auction/{id}(id=${thumbnail.id})}"/>
-                <div class="thumbnail" th:each="image: ${thumbnail.images}" th:if="${image.isMainPhoto()}">
-                    <img th:src="@{${'/getImage/'+ image.id}}" th:alt="${thumbnail.getTitle()}">
+                <div class="thumbnail" >
+                    <img th:each="image: ${thumbnail.images}" th:if="${image.isMainPhoto()}" th:src="@{${'/getImage/'+ image.id}}" th:alt="${thumbnail.getTitle()}">
+                    <img th:if="${#lists.size(thumbnail.images)} == 0" th:src="@{${'/getImage/449'}}" th:alt="${thumbnail.getTitle()}">
                     <div class="caption">
                         <h3 th:text="${thumbnail.title}">Thumbnail label</h3>
                     </div>

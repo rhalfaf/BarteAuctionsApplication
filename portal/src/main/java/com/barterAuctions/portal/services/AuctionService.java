@@ -85,22 +85,43 @@ public class AuctionService {
     @Transactional
     public AuctionDTO addNewAuction(AuctionDTO auction, String category, String userName, MultipartFile[] images) {
         ArrayList<Image> auctionImages = new ArrayList<>();
-        Arrays.stream(images).sequential().forEach(file -> {
-            try {
-                Image i = new Image(file.getOriginalFilename(), false, file.getContentType(), file.getBytes());
-                auctionImages.add(i);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        auction.setImages(auctionImages);
+        if (images.length > 0 && !images[0].isEmpty()) {
+            Arrays.stream(images).sequential().forEach(file -> {
+                try {
+                    Image i = new Image(file.getOriginalFilename(), false, file.getContentType(), file.getBytes());
+                    auctionImages.add(i);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            auction.setImages(auctionImages);
+        }
         auction.setCategory(categoryService.findByName(category));
         Auction entityAuction = modelMapper.map(auction, Auction.class);
         entityAuction.setStartDate(LocalDate.now());
         entityAuction.setExpireDate(LocalDate.now().plusDays(7));
         entityAuction.setActive(true);
         User user = userService.findByName(userName);
-        user.getAuctions().add(entityAuction);
+        user.addAuction(auctionRepository.save(entityAuction));
         return modelMapper.map(entityAuction, AuctionDTO.class);
     }
+
+    public List<AuctionDTO> observedAuctions(String userName) {
+        User user = userService.findByName(userName);
+        return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<AuctionDTO> stopObserveAuction(String userName, Long id) {
+        User user = userService.findByName(userName);
+        try {
+            Auction auction1 = auctionRepository.findById(id).orElseThrow();
+            user.getObservedAuctions().remove(auction1);
+        } catch (NoSuchElementException e) {
+            return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+        }
+        return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+    }
+
+
 }

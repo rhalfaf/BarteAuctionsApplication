@@ -5,6 +5,9 @@ import com.barterAuctions.portal.repositories.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 @Service
 public class ImageService {
 
@@ -15,11 +18,14 @@ public class ImageService {
         this.imageRepository = imageRepository;
     }
 
-    public Image findById(Long id){
-        return imageRepository.findById(id).orElseThrow();
+    public Image findById(Long id) {
+      Image i = imageRepository.findById(id).orElseThrow();
+
+
+        return i;
     }
 
-    public Image save(Image image){
+    public Image save(Image image) {
         return imageRepository.saveAndFlush(image);
     }
 

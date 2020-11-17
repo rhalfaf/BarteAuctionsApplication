@@ -26,9 +26,9 @@
                        th:text="${#strings.abbreviate(auction.description,300)}"></a>
                 </div>
                 <div sec:authorize="isAuthenticated()">
-                    <button type="button" th:onclick="'javascript:httpGet('+ ${auction.id} +');'"
-                            class="glyphicon glyphicon-heart-empty v-al-bottom float-right" aria-hidden="true"
-                            title="Dodaj do obserwowanych"></button>
+                    <a type="button" th:href="@{/stopObserve/{id}(id=${auction.id})}"
+                            class="glyphicon glyphicon-remove v-al-bottom float-right f-col-black" aria-hidden="true"
+                            title="Przestań obserwować"></a>
                 </div>
             </td>
         </tr>

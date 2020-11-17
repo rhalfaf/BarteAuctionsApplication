@@ -11,7 +11,7 @@ public class Image {
     private String name;
     private boolean isMainPhoto = false;
     private String type;
-    @Column(length = 10000)
+    @Column
     private byte[] imageByte;
 
     public Image(String name, boolean isMainPhoto, String type, byte[] imageByte) {

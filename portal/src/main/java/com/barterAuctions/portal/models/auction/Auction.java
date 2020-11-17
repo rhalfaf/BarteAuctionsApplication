@@ -1,6 +1,9 @@
 package com.barterAuctions.portal.models.auction;
 
+import com.barterAuctions.portal.models.user.User;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -9,8 +12,8 @@ import java.util.List;
 @Table(name = "auction")
 public class Auction {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
     private String localization;
     private String title;
     @Lob
@@ -23,9 +26,20 @@ public class Auction {
     private LocalDate expireDate;
     @OneToOne
     private Category category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+
 
 
     public Auction() {
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public boolean isActive() {

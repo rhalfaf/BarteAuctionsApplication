@@ -87,7 +87,7 @@ public class UserService implements UserDetailsService {
         if (userRepository.findByObservedAuctionsAndName(mappedAuction, user.getName()) != null) {
             throw new IllegalStateException("Już obserwujęsz wybraną auckję.");
         } else {
-            user.getObservedAuctions().add(mappedAuction);
+            user.getObservedAuctions().add( modelMapper.map(auction, Auction.class));
         }
     }
 

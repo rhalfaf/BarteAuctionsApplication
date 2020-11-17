@@ -3,6 +3,7 @@ package com.barterAuctions.portal.controllers;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
 import com.barterAuctions.portal.models.auction.Image;
+import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.services.AuctionService;
 import com.barterAuctions.portal.services.CategoryService;
 import com.barterAuctions.portal.services.ImageService;
@@ -84,17 +85,37 @@ public class AuctionController {
     }
 
     @GetMapping("/addToObserved/{id}")
-    public String test(@PathVariable("id") long id, Model model) {
+    public String addAuctionToObserved(@PathVariable("id") long id, Model model) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         AuctionDTO auction = auctionService.findById(id);
+        if (userName.equals(auctionService.findAuctionOwner(auction).getName())) {
+            model.addAttribute("error", "Nie możesz dodać własnej aukcji jako obserwowanej.");
+            /*return "redirect:list/"+auction.getCategory().getCategoryName();*/
+        }
         try {
             userService.addAuctionToObserved(userName, auction);
         } catch (IllegalStateException e) {
             model.addAttribute("error", e.getMessage());
-            return "items";
+            /* return "redirect:list/"+auction.getCategory().getCategoryName();*/
         }
         return "items";
     }
+
+    @GetMapping("/getObservedAuctions")
+    public String getObservedAuctions(Model model) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("auctions", auctionService.observedAuctions(userName));
+        return "observedAuctions";
+    }
+
+    @GetMapping("/stopObserve/{id}")
+    public String getObservedAuctions(@PathVariable Long id, Model model) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        auctionService.stopObserveAuction(userName, id);
+        model.addAttribute("auctions", auctionService.observedAuctions(userName));
+        return "observedAuctions";
+    }
+
 
     @GetMapping("/addNewAuction")
     public String addNewAuction(Model model) {
@@ -108,29 +129,38 @@ public class AuctionController {
                               @RequestParam("auctionImages") MultipartFile[] images,
                               BindingResult result,
                               Model model) {
+        if (Arrays.stream(images).sequential().anyMatch(file -> (file.getSize() > maxFileSize))) {
+            model.addAttribute("error", "Plik ma za duży rozmiar, maksymalny rozmair to " + maxFileSize / 1024 / 1024 + " Mb.");
+            return "addNewAuction";
+        }
+        if (result.hasErrors()) {
+            return "addNewAuction";
+        }
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        auctionService.addNewAuction(auction, category, userName, images);
 
-            if (Arrays.stream(images).sequential().anyMatch(file -> (file.getSize() > maxFileSize))) {
-                model.addAttribute("error", "Plik ma za duży rozmiar, maksymalny rozmair to " +maxFileSize/1024/1024 +" Mb.");
-                return "addNewAuction";
-            }
-            if (result.hasErrors()) {
-                return "addNewAuction";
-            }
-            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-            auctionService.addNewAuction(auction, category, userName, images);
-
-        return "redirect: /showAuctions/" + userName;
+        return "redirect:showAuctions/" + userName;
     }
 
 
     @GetMapping("/getImage/{id}")
     @ResponseBody
     void showImage(@PathVariable("id") Long id, HttpServletResponse response, Optional<Image> image)
-            throws ServletException, IOException {
-        image = Optional.ofNullable(imageService.findById(id));
-        response.setContentType("image/jpeg, image/jpg, image/png");
-        response.getOutputStream().write(image.get().getImageByte());
-        response.getOutputStream().close();
+            throws IOException {
+        if (id != null) {
+            try{
+                image = Optional.ofNullable(imageService.findById(id));
+                response.setContentType("image/jpeg, image/jpg, image/png");
+                response.getOutputStream().write(image.get().getImageByte());
+                response.getOutputStream().close();
+            }catch (NoSuchElementException e){
+                image = Optional.ofNullable(imageService.findById((long)97));
+                response.setContentType("image/jpeg, image/jpg, image/png");
+                response.getOutputStream().write(image.get().getImageByte());
+                response.getOutputStream().close();
+
+            }
+        }
     }
 
 

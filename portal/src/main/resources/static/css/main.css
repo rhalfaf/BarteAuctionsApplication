@@ -45,12 +45,23 @@ a:hover{
     color: black !important;
     text-decoration: none !important;
 }
+.b-col-green-grey{
+    background: #eaefed;
+}
+
+.b-col-white{
+    background: white;
+}
+
+.disp-flex{
+    display: flex;
+}
+
 .f-wgh-600{
     font-weight: 600;
 }
 .f-wgh-200{
     font-weight: 200;
-
 }
 .f-col-black{
     color: black;
@@ -58,9 +69,18 @@ a:hover{
 .f-col-red{
     color: red;
 }
+.float-right{
+    float: right;
+}
+.float-left{
+    float: left;
+}
 
 .f-size-large{
     font-size: large;
+}
+.margin-1em{
+    margin: 1em;
 }
 .tx-al-cent{
     text-align: center;
@@ -80,28 +100,24 @@ a:hover{
 .width-40per{
     width: 40%;
 }
+.width-100per{
+    width: 100%;
+}
 .v-al-top{
     vertical-align: top;
 }
 .v-al-bottom{
     vertical-align: bottom;
 }
-.float-right{
-    float: right;
-}
-.float-left{
-    float: left;
-}
-.b-col-green-grey{
-    background: #eaefed;
-}
+
+
 .mx-width-25prc{
     max-width: 25%;
 }
 .img-carousel {
     width: 31em;
     height: 18em !important;
-    object-fit: cover;
+    object-fit: scale-down;
 }
 .side-menu-list{
     list-style: none;
@@ -130,3 +146,4 @@ a:hover{
 .side-menu-item:hover{
     color: #6c6c79 !important;
 }
+
