@@ -13,8 +13,9 @@
         <tr class="table-row" th:each="auction: ${auctions}">
             <td class="table-data-image b-col-green-grey">
                 <a th:href="@{/auction/{id}(id=${auction.id})}"/>
-                <img class="list-image" th:if="${#lists.size(auction.images)} == 0" th:src="@{${'/getImage/449'}}" th:alt="${auction.getTitle()}">
-                <img class="list-image" th:each="image:${auction.images}"  th:if="${image.isMainPhoto()}"
+                <img class="list-image" th:if="${#lists.size(auction.images)} == 0" th:src="@{${'/getImage/97'}}"
+                     th:alt="${auction.getTitle()}">
+                <img class="list-image" th:each="image:${auction.images}" th:if="${image.isMainPhoto()}"
                      th:src="@{${'/getImage/'+ image.id}}">
             </td>
             <td class="table-data v-al-top b-col-green-grey tx-align-left padd-10px">
@@ -25,27 +26,32 @@
                     <a th:href="@{/auction/{id}(id=${auction.id})}" class="f-col-black f-wgh-200"
                        th:text="${#strings.abbreviate(auction.description,300)}"></a>
                 </div>
-                <div sec:authorize="isAuthenticated()">
-                    <a type="button" th:href="@{/stopObserve/{id}(id=${auction.id})}"
-                            class="glyphicon glyphicon-remove v-al-bottom float-right f-col-black" aria-hidden="true"
-                            title="Przestań obserwować"></a>
-                </div>
             </td>
+            <td>
+                <a type="button" class="btn btn-primary" title="Przestań obserwować" sec:authorize="isAuthenticated()" data-toggle="modal" data-target="#modal-warning"
+                   th:attr="data-target='#modal-warning'+${auction.id }"><span class="glyphicon glyphicon-minus"></span></a>
+            </td>
+            <!--MODAL-->
+            <div class="modal modal-warning fade in" th:id="modal-warning+${auction.id }">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h3>Chcesz przestać obserować aukcję?</h3>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Anuluj
+                            </button>
+                            <a type="button" class="btn btn-outline" th:href="@{/stopObserve/{id}(id=${auction.id})}"><i
+                                    class="fa fa-check"></i>&nbsp;TAK</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </tr>
     </table>
 
 
 </div>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    function httpGet(id) {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", '/addToObserved/' + id, false);
-        xmlHttp.send(null);
 
-    }
-
-    /*]]>*/
-</script>
 </body>
 </html>

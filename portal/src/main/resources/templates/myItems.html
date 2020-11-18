@@ -11,9 +11,9 @@
     <span class="f-col-red" th:if="${error}" th:text="${error}"></span>
     <table class="table-list">
         <tr class="table-row" th:each="auction: ${auctions}">
-            <td class="table-data-image b-col-green-grey">
+            <td class="table-data-image b-col-green-grey min-width-17em">
                 <a th:href="@{/auction/{id}(id=${auction.id})}"/>
-                <img class="list-image" th:if="${#lists.size(auction.images)} == 0" th:src="@{${'/getImage/449'}}" th:alt="${auction.getTitle()}">
+                <img class="list-image" th:if="${#lists.size(auction.images)} == 0" th:src="@{${'/getImage/97'}}" th:alt="${auction.getTitle()}">
                 <img class="list-image" th:each="image:${auction.images}"  th:if="${image.isMainPhoto()}"
                      th:src="@{${'/getImage/'+ image.id}}">
             </td>
@@ -25,27 +25,10 @@
                     <a th:href="@{/auction/{id}(id=${auction.id})}" class="f-col-black f-wgh-200"
                        th:text="${#strings.abbreviate(auction.description,300)}"></a>
                 </div>
-                <div sec:authorize="isAuthenticated()">
-                    <button type="button" th:onclick="'javascript:httpGet('+ ${auction.id} +');'"
-                            class="glyphicon glyphicon-heart-empty v-al-bottom float-right" aria-hidden="true"
-                            title="Dodaj do obserwowanych"></button>
-                </div>
             </td>
+
         </tr>
     </table>
-
-
 </div>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    function httpGet(id) {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", '/addToObserved/' + id, false);
-        xmlHttp.send(null);
-
-    }
-
-    /*]]>*/
-</script>
 </body>
 </html>

@@ -94,6 +94,7 @@ public class AuctionService {
                     e.printStackTrace();
                 }
             });
+            auctionImages.get(0).setMainPhoto(true);
             auction.setImages(auctionImages);
         }
         auction.setCategory(categoryService.findByName(category));

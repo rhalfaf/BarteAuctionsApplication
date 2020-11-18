@@ -11,6 +11,7 @@
           integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
 
+
 </head>
 <body>
 <th:block th:fragment="script">
@@ -43,9 +44,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">Kategorie <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li th:each="category: ${categories}"><a class="dropdown-item"
-                                                                 th:href="@{/list/{category}(category = ${category.getCategoryName()})}"
-                                                                 th:text="${category.categoryName}"></a>
+                        <li th:each="category: ${categories}"><a class="dropdown-item" th:href="@{/list/{category}(category = ${category.getCategoryName()})}" th:text="${category.categoryName}"></a>
                         </li>
                     </ul>
                 </li>
@@ -66,7 +65,7 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/showAuctions/{user}(user=${#authentication.name})}">Moje aukcje</a></li>
+                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/myItems}">Moje aukcje</a></li>
                         <li class="dropdown-item"><a class="dropdown-item" th:href="@{/addNewAuction}">Dodaj aukcje</a></li>
                         <li class="dropdown-item"><a class="dropdown-item" th:href="@{/getObservedAuctions}">Obserwowane auckje</a></li>
                     </ul>

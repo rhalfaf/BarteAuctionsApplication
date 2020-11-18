@@ -3,24 +3,17 @@ package com.barterAuctions.portal.controllers;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
 import com.barterAuctions.portal.models.auction.Image;
-import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.services.AuctionService;
 import com.barterAuctions.portal.services.CategoryService;
 import com.barterAuctions.portal.services.ImageService;
 import com.barterAuctions.portal.services.UserService;
-import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -65,7 +58,7 @@ public class AuctionController {
         try {
             List<AuctionDTO> auctions = auctionService.findAllByCategory(category);
             model.addAttribute("auctions", auctions);
-            return "items";
+            return "userItems";
         } catch (NoSuchElementException e) {
             model.addAttribute("error", e.getMessage());
             return "index";
@@ -77,7 +70,20 @@ public class AuctionController {
         try {
             List<AuctionDTO> auctions = userService.findAllAuctionsOfAUser(user);
             model.addAttribute("auctions", auctions);
-            return "items";
+            return "userItems";
+        } catch (NoSuchElementException e) {
+            model.addAttribute("error", e.getMessage());
+            return "index";
+        }
+    }
+
+    @GetMapping("/myItems")
+    String listMyItems(Model model) {
+        try {
+            String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+            List<AuctionDTO> auctions = userService.findAllAuctionsOfAUser(userName);
+            model.addAttribute("auctions", auctions);
+            return "myItems";
         } catch (NoSuchElementException e) {
             model.addAttribute("error", e.getMessage());
             return "index";
@@ -88,17 +94,17 @@ public class AuctionController {
     public String addAuctionToObserved(@PathVariable("id") long id, Model model) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         AuctionDTO auction = auctionService.findById(id);
-        if (userName.equals(auctionService.findAuctionOwner(auction).getName())) {
-            model.addAttribute("error", "Nie możesz dodać własnej aukcji jako obserwowanej.");
-            /*return "redirect:list/"+auction.getCategory().getCategoryName();*/
-        }
         try {
-            userService.addAuctionToObserved(userName, auction);
+            if (!userName.equals(auctionService.findAuctionOwner(auction).getName())) {
+                userService.addAuctionToObserved(userName, auction);
+                model.addAttribute("error", "Nie możesz obserwować własnej auckji. ");
+                return "redirect:/auction/"+id;
+            }
         } catch (IllegalStateException e) {
             model.addAttribute("error", e.getMessage());
-            /* return "redirect:list/"+auction.getCategory().getCategoryName();*/
+            return "redirect:/auction/"+id;
         }
-        return "items";
+        return "redirect:/auction/"+id;
     }
 
     @GetMapping("/getObservedAuctions")
@@ -138,7 +144,6 @@ public class AuctionController {
         }
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         auctionService.addNewAuction(auction, category, userName, images);
-
         return "redirect:showAuctions/" + userName;
     }
 
@@ -148,13 +153,13 @@ public class AuctionController {
     void showImage(@PathVariable("id") Long id, HttpServletResponse response, Optional<Image> image)
             throws IOException {
         if (id != null) {
-            try{
+            try {
                 image = Optional.ofNullable(imageService.findById(id));
                 response.setContentType("image/jpeg, image/jpg, image/png");
                 response.getOutputStream().write(image.get().getImageByte());
                 response.getOutputStream().close();
-            }catch (NoSuchElementException e){
-                image = Optional.ofNullable(imageService.findById((long)97));
+            } catch (NoSuchElementException e) {
+                image = Optional.ofNullable(imageService.findById((long) 97));
                 response.setContentType("image/jpeg, image/jpg, image/png");
                 response.getOutputStream().write(image.get().getImageByte());
                 response.getOutputStream().close();

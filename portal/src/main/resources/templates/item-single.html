@@ -8,27 +8,24 @@
 <section>
     <nav th:replace="index :: navbar"></nav>
     <div class="container b-col-white" th:object="${auction}">
+        <a class="f-col-red" th:if="${error}" th:text="${error}"></a>
         <a class="f-col-black margin-1em" th:text="${auction.category.categoryName}"
            th:href="@{/list/{category}(category = ${auction.category.getCategoryName()})}">Category</a>
         <h3 th:text="*{title}">Auction title</h3>
         <div>
             <div class="disp-flex">
                 <div class="width-40per margin-1em">
-                    <div id="carousel" class="carousel slide" data-ride="carousel" style="width: 90%">
+                    <div id="carousel" class="carousel slide" data-ride="carousel"
+                         th:if="${#lists.size(auction.images)} != 0">
                         <div class="carousel-inner" role="listbox">
-                            <div class="item active" th:each="image: ${auction.images}" th:if="${image.isMainPhoto()}">
+                            <div class="item active" th:each="image: ${auction.images}" th:if="${image.isMainPhoto()}"
+                                 hidden>
                                 <img th:id="${image.id}" class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
                                      th:alt="${auction.title}">
                             </div>
                             <div class="item" th:each="image: ${auction.images}" th:unless="${image.isMainPhoto()}">
                                 <img th:id="${image.id}" class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
                                      th:alt="${auction.title}">
-                                <!-- Modal -->
-                                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal"
-                                        data-target="#myModal"
-                                        th:attrappend="data-target=${image.id}">
-                                    Launch demo modal
-                                </button>
                             </div>
                         </div>
                         <!-- Controls -->
@@ -56,29 +53,16 @@
                             </a>
                         </div>
                         <div>
-                            <h5><a class="label label-primary" th:href="@{/showAuctions/{user}(user=*{name})}">Inne
-                                ogłoszenia użytkownika</a></h5>
+                            <h5><a class="label label-primary" th:href="@{/showAuctions/{user}(user=*{name})}">Inne ogłoszenia użytkownika</a></h5>
+                        </div>
+                        <div>
+                            <h5><a class="label label-primary" th:href="@{/addToObserved/{id}(id=${auction.id})}">Dodaj do obserwowanych</a></h5>
                         </div>
                         <div>
                             <h2>
                                 <button type="button" class="btn btn-warning">Wyślij wiadomość</button>
                             </h2>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Modal -->
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" th:attrappend="id=${image.id}">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <a>Kurwwwwwa</a>
-                    <div class="modal-body">
-                        <img th:src="@{${'/getImage/'+ image.id}}"
-                             th:alt="${auction.title}">
                     </div>
                 </div>
             </div>

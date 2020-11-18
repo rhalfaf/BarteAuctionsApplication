@@ -82,6 +82,9 @@ a:hover{
 .margin-1em{
     margin: 1em;
 }
+.min-width-17em{
+    min-width: 17em;
+}
 .tx-al-cent{
     text-align: center;
 }
