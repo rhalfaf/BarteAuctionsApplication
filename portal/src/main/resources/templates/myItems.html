@@ -13,8 +13,9 @@
         <tr class="table-row" th:each="auction: ${auctions}">
             <td class="table-data-image b-col-green-grey min-width-17em">
                 <a th:href="@{/auction/{id}(id=${auction.id})}"/>
-                <img class="list-image" th:if="${#lists.size(auction.images)} == 0" th:src="@{${'/getImage/97'}}" th:alt="${auction.getTitle()}">
-                <img class="list-image" th:each="image:${auction.images}"  th:if="${image.isMainPhoto()}"
+                <img class="list-image" th:if="${#lists.size(auction.images)} == 0" th:src="@{${'/getImage/97'}}"
+                     th:alt="${auction.getTitle()}">
+                <img class="list-image" th:each="image:${auction.images}" th:if="${image.isMainPhoto()}"
                      th:src="@{${'/getImage/'+ image.id}}">
             </td>
             <td class="table-data v-al-top b-col-green-grey tx-align-left padd-10px">
@@ -26,6 +27,55 @@
                        th:text="${#strings.abbreviate(auction.description,300)}"></a>
                 </div>
             </td>
+            <td th:if="${auction.active}">
+                <a  type="button" class="btn btn-primary" title="Usuń aukcję"
+                   sec:authorize="isAuthenticated()"
+                   data-toggle="modal" data-target="#modal-delete"
+                   th:attr="data-target='#modal-delete'+${auction.id }"><span class="glyphicon glyphicon-trash"></span></a>
+            </td>
+            <td th:if="${!auction.active}">
+                <a  type="button" class="btn btn-primary" title="Usuń aukcję"
+                   sec:authorize="isAuthenticated()"
+                   data-toggle="modal" data-target="#modal-issue"
+                   th:attr="data-target='#modal-issue'+${auction.id }"><span class="glyphicon glyphicon-repeat"></span></a>
+            </td>
+            <!--MODAL for delete-->
+            <div class="modal modal-warning fade in" th:id="modal-delete+${auction.id }">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h3>Czy na pewno chcesz usunąć wybraną auckję?</h3>
+                        </div>
+                        <div class="modal-footer">
+                            <form action="#" th:action="@{/deleteAuction}" method="post">
+                                <input type="hidden" name="auctionId" th:value="${auction.id}">
+                                <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Anuluj
+                                </button>
+                                <button type="submit" class="btn btn-outline fa fa-check">Usuń</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--MODAL for re-issue auction-->
+            <div class="modal modal-warning fade in" th:id="modal-issue+${auction.id }">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h3>Czy na pewno chcesz ponownie wystawić aukcję?</h3>
+                            <h5>Będzie aktywna przez kolejne 7 dni.</h5>
+                        </div>
+                        <div class="modal-footer">
+                            <form action="#" th:action="@{/re-issue}" method="post">
+                                <input type="hidden" name="auctionId" th:value="${auction.id}">
+                                <button type="button" class="btn btn-outline pull-left" data-dismiss="modal">Anuluj
+                                </button>
+                                <button type="submit" class="btn btn-outline fa fa-check">TAK</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </tr>
     </table>

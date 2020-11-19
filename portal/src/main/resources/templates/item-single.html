@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head th:replace="index::head">
 
 </head>
@@ -53,15 +54,42 @@
                             </a>
                         </div>
                         <div>
-                            <h5><a class="label label-primary" th:href="@{/showAuctions/{user}(user=*{name})}">Inne ogłoszenia użytkownika</a></h5>
+                            <h5><a class="label label-primary" th:href="@{/showAuctions/{user}(user=*{name})}">Inne
+                                ogłoszenia użytkownika</a></h5>
                         </div>
                         <div>
-                            <h5><a class="label label-primary" th:href="@{/addToObserved/{id}(id=${auction.id})}">Dodaj do obserwowanych</a></h5>
+                            <h5><a class="label label-primary" th:href="@{/addToObserved/{id}(id=${auction.id})}">Dodaj
+                                do obserwowanych</a></h5>
                         </div>
                         <div>
                             <h2>
-                                <button type="button" class="btn btn-warning">Wyślij wiadomość</button>
+                                <a type="button" class="btn btn-primary" title="Usuń aukcję"
+                                   sec:authorize="isAuthenticated()" data-toggle="modal" data-target="#modal-message"
+                                   th:attr="data-target='#modal-message'+${auction.id }">Wyślij wiadomość</a>
                             </h2>
+                        </div>
+                        <!--MODAL for message-->
+                        <div class="modal modal-warning fade in" th:id="modal-message+${auction.id }">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <form action="#" th:action="@{/sendMeassage}" method="post"
+                                              th:object="${message}">
+                                            <label for="topic">Tutuł</label>
+                                            <input class="form-control" id="topic" type="text" name="topic" th:value="${auction.title}"
+                                                   disabled>
+                                            <label for="message">Wiadomość</label>
+                                            <textarea id="message" th:field="*{message}" rows="10" maxlength="2050"
+                                                      class="form-control"
+                                                      placeholder="Wiadomość"></textarea>
+                                            <button type="button" class="btn btn-outline pull-left"
+                                                    data-dismiss="modal">Anuluj
+                                            </button>
+                                            <button type="submit" class="btn btn-warning fa fa-check">Wyślij</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

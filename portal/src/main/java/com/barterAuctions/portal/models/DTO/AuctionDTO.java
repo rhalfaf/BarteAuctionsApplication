@@ -18,6 +18,7 @@ public class AuctionDTO {
     private List<Image> images;
     private BigDecimal price;
     private Category category;
+    private boolean isActive;
 
     public Long getId() {
         return id;
@@ -75,8 +76,11 @@ public class AuctionDTO {
         this.category = category;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
 
-
-
-
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 }

@@ -3,10 +3,12 @@ package com.barterAuctions.portal.controllers;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
 import com.barterAuctions.portal.models.auction.Image;
+import com.barterAuctions.portal.models.messages.Message;
 import com.barterAuctions.portal.services.AuctionService;
 import com.barterAuctions.portal.services.CategoryService;
 import com.barterAuctions.portal.services.ImageService;
 import com.barterAuctions.portal.services.UserService;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,6 +47,7 @@ public class AuctionController {
             model.addAttribute("auction", auction);
             UserAuctionDTO auctionOwner = auctionService.findAuctionOwner(auction);
             model.addAttribute("auctionOwner", auctionOwner);
+            model.addAttribute("message", new Message());
             return "item-single";
 
         } catch (NoSuchElementException e) {
@@ -98,13 +101,13 @@ public class AuctionController {
             if (!userName.equals(auctionService.findAuctionOwner(auction).getName())) {
                 userService.addAuctionToObserved(userName, auction);
                 model.addAttribute("error", "Nie możesz obserwować własnej auckji. ");
-                return "redirect:/auction/"+id;
+                return "redirect:/auction/" + id;
             }
         } catch (IllegalStateException e) {
             model.addAttribute("error", e.getMessage());
-            return "redirect:/auction/"+id;
+            return "redirect:/auction/" + id;
         }
-        return "redirect:/auction/"+id;
+        return "redirect:/auction/" + id;
     }
 
     @GetMapping("/getObservedAuctions")
@@ -145,6 +148,23 @@ public class AuctionController {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         auctionService.addNewAuction(auction, category, userName, images);
         return "redirect:showAuctions/" + userName;
+    }
+
+    @PostMapping("/deleteAuction")
+    public String deleteAuction(@RequestParam("auctionId") Long auctionId) {
+        auctionService.deleteAuction(auctionId);
+        return "redirect:/myItems";
+    }
+
+    @PostMapping("/re-issue")
+    public String reIssueAuction(@RequestParam("auctionId") Long auctionId, Model model) {
+        try {
+            auctionService.reIssueAuction(auctionId);
+        } catch (NoSuchElementException e){
+            model.addAttribute("error", e.getMessage());
+            return "redirect:/myItems";
+        }
+        return "redirect:/myItems";
     }
 
 

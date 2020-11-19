@@ -54,7 +54,7 @@ public class AuctionService {
             throw new NoSuchElementException("Wybrana kategoria nie istnieje.");
         }
         return auctionRepository.findAllByCategory(tmpCategory)
-                .stream()
+                .stream().filter(auction -> auction.isActive())
                 .map(auction -> modelMapper.map(auction, AuctionDTO.class))
                 .collect(Collectors.toList());
     }
@@ -123,6 +123,15 @@ public class AuctionService {
         }
         return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
     }
-
-
+    @Transactional
+    public void deleteAuction(Long auctionId) {
+        auctionRepository.findById(auctionId).orElseThrow(()-> new NoSuchElementException("Nie znaleziono auckji.")).setActive(false);
+    }
+    @Transactional
+    public void reIssueAuction(Long auctionId) {
+        var auction = auctionRepository.findById(auctionId).orElseThrow(()-> new NoSuchElementException("Nie znaleziono auckji."));
+        auction.setActive(true);
+        auction.setStartDate(LocalDate.now());
+        auction.setExpireDate(auction.getStartDate().plusDays(7));
+    }
 }
