@@ -9,8 +9,10 @@ import java.util.List;
 
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
+
     Auction findById(long id);
 
+    @Query("select a from Auction a where a.category =: category")
     List<Auction> findAllByCategory(Category category);
 
     @Query("SELECT id FROM Auction")

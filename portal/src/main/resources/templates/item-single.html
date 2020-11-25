@@ -19,12 +19,12 @@
                     <div id="carousel" class="carousel slide" data-ride="carousel"
                          th:if="${#lists.size(auction.images)} != 0">
                         <div class="carousel-inner" role="listbox">
-                            <div class="item active" th:each="image: ${auction.images}" th:if="${image.isMainPhoto()}"
+                            <div class="item active" th:each="image: *{images}" th:if="${image.isMainPhoto()}"
                                  hidden>
                                 <img th:id="${image.id}" class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
                                      th:alt="${auction.title}">
                             </div>
-                            <div class="item" th:each="image: ${auction.images}" th:unless="${image.isMainPhoto()}">
+                            <div class="item" th:each="image: *{images}" th:unless="${image.isMainPhoto()}">
                                 <img th:id="${image.id}" class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
                                      th:alt="${auction.title}">
                             </div>
@@ -73,15 +73,14 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-body">
-                                        <form action="#" th:action="@{/sendMeassage}" method="post"
+                                        <form action="#" th:action="@{/sendMessage}" method="post"
                                               th:object="${message}">
-                                            <label for="topic">Tutuł</label>
-                                            <input class="form-control" id="topic" type="text" name="topic" th:value="${auction.title}"
-                                                   disabled>
+                                            <label for="topic" >Temat</label>
+                                            <input maxlength="254" class="form-control" id="topic"  type="text" name="topic" th:value="${auction.title}">
                                             <label for="message">Wiadomość</label>
-                                            <textarea id="message" th:field="*{message}" rows="10" maxlength="2050"
-                                                      class="form-control"
-                                                      placeholder="Wiadomość"></textarea>
+                                            <textarea maxlength="1000" class="form-control" id="message" th:field="*{message}" rows="10" placeholder="Wiadomość"></textarea>
+                                            <input type="hidden" name="auctionOwner" th:value="${auctionOwner.name}">
+                                            <input type="hidden" name="auctionId" th:value="${auction.id}">
                                             <button type="button" class="btn btn-outline pull-left"
                                                     data-dismiss="modal">Anuluj
                                             </button>

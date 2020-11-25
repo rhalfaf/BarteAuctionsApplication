@@ -58,7 +58,7 @@ a:hover{
 }
 
 .f-wgh-600{
-    font-weight: 600;
+    font-weight: 600 !important;
 }
 .f-wgh-200{
     font-weight: 200;
@@ -99,6 +99,9 @@ a:hover{
 }
 .padd-5per{
     padding: 5%;
+}
+.padd-0{
+    padding: 0 !important;
 }
 .width-40per{
     width: 40%;
@@ -149,4 +152,7 @@ a:hover{
 .side-menu-item:hover{
     color: #6c6c79 !important;
 }
+
+
+
 

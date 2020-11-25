@@ -1,6 +1,20 @@
 package com.barterAuctions.portal.models.auction;
 
+import org.springframework.boot.actuate.trace.http.HttpTrace;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.function.ServerResponse;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
 import javax.persistence.*;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.nio.file.NoSuchFileException;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Entity
 @Table
@@ -13,6 +27,8 @@ public class Image {
     private String type;
     @Column
     private byte[] imageByte;
+    @ManyToOne(fetch = FetchType.LAZY)
+    Auction auction;
 
     public Image(String name, boolean isMainPhoto, String type, byte[] imageByte) {
         this.name = name;
@@ -64,5 +80,35 @@ public class Image {
 
     public void setMainPhoto(boolean mainPhoto) {
         isMainPhoto = mainPhoto;
+    }
+
+    public Auction getAuction() {
+        return auction;
+    }
+
+    public void setAuction(Auction auction) {
+        this.auction = auction;
+    }
+
+
+    @ResponseBody
+    public ResponseEntity<StreamingResponseBody> handleRequest() {
+        StreamingResponseBody responseBody = out -> {
+            out.write(imageByte);
+            out.flush();
+        };
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(responseBody);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Image)) return false;
+        return id != null && id.equals(((Image) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -2,13 +2,14 @@ package com.barterAuctions.portal.controllers;
 
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
+import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Image;
 import com.barterAuctions.portal.models.messages.Message;
+import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.services.AuctionService;
 import com.barterAuctions.portal.services.CategoryService;
 import com.barterAuctions.portal.services.ImageService;
 import com.barterAuctions.portal.services.UserService;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,18 +42,18 @@ public class AuctionController {
 
 
     @GetMapping("/auction/{id}")
-    public String auction(@PathVariable("id") long id, Model model, HttpServletResponse response) {
+    public String auction(@PathVariable("id") long id, Model model) {
         try {
             AuctionDTO auction = auctionService.findById(id);
             model.addAttribute("auction", auction);
-            UserAuctionDTO auctionOwner = auctionService.findAuctionOwner(auction);
+            User auctionOwner = auctionService.findAuctionOwner(auction);
             model.addAttribute("auctionOwner", auctionOwner);
             model.addAttribute("message", new Message());
             return "item-single";
 
         } catch (NoSuchElementException e) {
             model.addAttribute("error", e.getMessage());
-            return "index";
+            return "item-single";
         }
     }
 
@@ -61,7 +62,7 @@ public class AuctionController {
         try {
             List<AuctionDTO> auctions = auctionService.findAllByCategory(category);
             model.addAttribute("auctions", auctions);
-            return "userItems";
+            return "items";
         } catch (NoSuchElementException e) {
             model.addAttribute("error", e.getMessage());
             return "index";
@@ -73,7 +74,7 @@ public class AuctionController {
         try {
             List<AuctionDTO> auctions = userService.findAllAuctionsOfAUser(user);
             model.addAttribute("auctions", auctions);
-            return "userItems";
+            return "items";
         } catch (NoSuchElementException e) {
             model.addAttribute("error", e.getMessage());
             return "index";
@@ -94,12 +95,12 @@ public class AuctionController {
     }
 
     @GetMapping("/addToObserved/{id}")
-    public String addAuctionToObserved(@PathVariable("id") long id, Model model) {
+    public String addAuctionToObserved(@PathVariable("id") Long id, Model model) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        AuctionDTO auction = auctionService.findById(id);
+        AuctionDTO auctionDTO = auctionService.findById(id);
         try {
-            if (!userName.equals(auctionService.findAuctionOwner(auction).getName())) {
-                userService.addAuctionToObserved(userName, auction);
+            if (!userName.equals(auctionService.findAuctionOwner(auctionDTO))) {
+                userService.addAuctionToObserved(userName, id);
                 model.addAttribute("error", "Nie możesz obserwować własnej auckji. ");
                 return "redirect:/auction/" + id;
             }
@@ -160,7 +161,7 @@ public class AuctionController {
     public String reIssueAuction(@RequestParam("auctionId") Long auctionId, Model model) {
         try {
             auctionService.reIssueAuction(auctionId);
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             model.addAttribute("error", e.getMessage());
             return "redirect:/myItems";
         }

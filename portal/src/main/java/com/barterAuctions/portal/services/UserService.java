@@ -1,10 +1,10 @@
 package com.barterAuctions.portal.services;
 
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
-import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.user.Authorities;
 import com.barterAuctions.portal.models.user.User;
+import com.barterAuctions.portal.repositories.AuctionRepository;
 import com.barterAuctions.portal.repositories.RoleRepository;
 import com.barterAuctions.portal.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -27,12 +27,14 @@ public class UserService implements UserDetailsService {
     final BCryptPasswordEncoder bCryptPasswordEncoder;
     final UserRepository userRepository;
     final RoleRepository roleRepository;
+    final AuctionRepository auctionRepository;
     final ModelMapper modelMapper;
 
-    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, RoleRepository roleRepository, ModelMapper modelMapper) {
+    public UserService(BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository, RoleRepository roleRepository, AuctionRepository auctionRepository, ModelMapper modelMapper) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.auctionRepository = auctionRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -65,26 +67,24 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public UserAuctionDTO findByAuctions(AuctionDTO auctionDTO) {
-        Auction a = modelMapper.map(auctionDTO, Auction.class);
-        User user = userRepository.findByAuctions(a);
-        UserAuctionDTO userAuctionDTO = modelMapper.map(user, UserAuctionDTO.class);
-        return userAuctionDTO;
+    public User findAuctionOwner(AuctionDTO auction) {
+        Auction auctionEntity = modelMapper.map(auction, Auction.class);
+        return userRepository.findByAuctions(auctionEntity);
     }
 
-    public List<AuctionDTO> findAllAuctionsOfAUser(String username){
+    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllAuctionsOfAUser(String username){
         User user = userRepository.findByName(username);
         if(user == null){
             throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
         }
-        return user.getAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+        return user.getAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
 
     @Transactional
-    public void addAuctionToObserved(String userName, AuctionDTO auction) {
+    public void addAuctionToObserved(String userName, Long auctionId) {
         User user = userRepository.findByName(userName);
-        Auction mappedAuction = modelMapper.map(auction, Auction.class);
-        if (userRepository.findByObservedAuctionsAndName(mappedAuction, user.getName()) != null) {
+        Auction auction = auctionRepository.findById(auctionId).orElseThrow();
+        if (userRepository.findByObservedAuctionsAndName(auctionId, user.getName()) != null) {
             throw new IllegalStateException("Już obserwujęsz wybraną auckję.");
         } else {
             user.getObservedAuctions().add( modelMapper.map(auction, Auction.class));

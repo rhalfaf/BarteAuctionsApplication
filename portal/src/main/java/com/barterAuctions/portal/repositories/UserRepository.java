@@ -1,13 +1,10 @@
 package com.barterAuctions.portal.repositories;
 
-import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.user.User;
-import jdk.dynalink.linker.LinkerServices;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
@@ -16,7 +13,8 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     User findByAuctions(Auction a);
 
-    User findByObservedAuctionsAndName(Auction a, String username);
+    @Query("select u from User u where u.name =:username and :auctionId member u.observedAuctions ")
+    User findByObservedAuctionsAndName(Long auctionId, String username);
 
     boolean existsByName(String name);
 

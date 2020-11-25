@@ -1,7 +1,6 @@
 package com.barterAuctions.portal.models.DTO;
 
 import com.barterAuctions.portal.models.auction.Auction;
-import com.barterAuctions.portal.models.user.User;
 
 import java.util.List;
 

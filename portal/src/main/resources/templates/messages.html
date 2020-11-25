@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="index::head">
+
+</head>
+<body>
+<th:block th:replace="index::script"></th:block>
+<nav th:replace="index :: navbar"></nav>
+<div class="container">
+    <a type="button" class="btn btn-primary btn-lg active" th:href="@{/getMessages}" >Odebrane</a>
+    <a type="button" class="btn btn-primary btn-lg active" th:href="@{/getMessages/sent}">Wysłane</a>
+
+    <table th:id="message-list" class="table table-hover" th:object="${messages}">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Nadawca</th>
+            <th>Temat wiadomości</th>
+            <th>Data widomości</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:unless="${sent}" th:class="${!message.read ? 'f-wgh-600': ''}"
+            th:each="message, step: ${messages} ">
+
+
+            <td th:text="${step.index + 1}"></td>
+            <td th:text="${message.sender}"></td>
+            <td th:text="${#strings.abbreviate(message.topic,30)}"></td>
+            <td th:text="${#temporals.format(message.dateTime, 'dd-MM-yyyy HH:mm')}"></td>
+            <td>
+                <form action="#" th:action="@{/shMsg}" th:method="post">
+                    <input type="hidden" name="messageId" th:value="${message.id}">
+                    <input type="hidden" name="messageTopic" th:value="${message.topic}">
+                    <input type="hidden" name="messageText" th:value="${message.message}">
+                    <input type="hidden" name="sender" th:value="${message.sender}">
+                    <input type="hidden" name="auctionOwner" th:value="${message.recipient}">
+                    <input type="hidden" name="auctionId" th:value="${message.auctionWhichConcernsId}">
+                    <button class="btn  btn-primary" type="submit">Pokaż</button>
+                </form>
+            </td>
+            <td>
+                <form action="#" th:action="@{/dltRecMsg}" th:method="post">
+                    <input type="hidden" name="messageId" th:value="${message.id}">
+                    <button class="btn btn-primary" type="submit">Usuń</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${sent}" th:each="message, step: ${messages} ">
+
+
+            <td th:text="${step.index + 1}"></td>
+            <td th:text="${message.sender}"></td>
+            <td th:text="${#strings.abbreviate(message.topic,30)}"></td>
+            <td th:text="${#temporals.format(message.dateTime, 'dd-MM-yyyy HH:mm')}"></td>
+            <td>
+                <form action="#" th:action="@{/shMsg}" th:method="post">
+                    <input type="hidden" name="messageId" th:value="${message.id}">
+                    <input type="hidden" name="messageTopic" th:value="${message.topic}">
+                    <input type="hidden" name="messageText" th:value="${message.message}">
+                    <input type="hidden" name="sender" th:value="${message.sender}">
+                    <input type="hidden" name="auctionOwner" th:value="${message.recipient}">
+                    <input type="hidden" name="auctionId" th:value="${message.auctionWhichConcernsId}">
+                    <button class="btn  btn-primary" type="submit">Pokaż</button>
+                </form>
+            </td>
+            <td>
+                <form action="#" th:action="@{/dltSentMsg}" th:method="post">
+                    <input type="hidden" name="messageId" th:value="${message.id}">
+                    <button class="btn btn-primary" type="submit">Usuń</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

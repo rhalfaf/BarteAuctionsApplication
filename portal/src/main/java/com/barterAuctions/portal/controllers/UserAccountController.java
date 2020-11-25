@@ -1,24 +1,38 @@
 package com.barterAuctions.portal.controllers;
 
+import com.barterAuctions.portal.models.messages.Message;
 import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.services.CategoryService;
+import com.barterAuctions.portal.services.MessageService;
 import com.barterAuctions.portal.services.UserService;
+import org.springframework.orm.hibernate5.SpringSessionContext;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.List;
 
+@EnableScheduling
 @Controller
 public class UserAccountController {
 
     final UserService userService;
     final CategoryService categoryService;
+    final MessageService messageService;
 
-    public UserAccountController(UserService userService, CategoryService categoryService) {
+    public UserAccountController(UserService userService, CategoryService categoryService, MessageService messageService) {
         this.userService = userService;
         this.categoryService = categoryService;
+        this.messageService = messageService;
     }
 
     @GetMapping("/login")
@@ -57,6 +71,25 @@ public class UserAccountController {
             return "login";
         }
     }
+
+
+    @GetMapping(value = {"/getMessages", "/getMessages/{sent}"})
+    public String getMessages(@PathVariable(required = false) String sent, Model model) {
+        String loggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<Message> sentMessages = messageService.getSentMessages(loggedUser);
+        List<Message> receiptMessages = messageService.getReceiptedMessages(loggedUser);
+        if (sent == null) {
+            model.addAttribute("messages", receiptMessages);
+            model.addAttribute("sent", false);
+        } else {
+            model.addAttribute("messages", sentMessages);
+            model.addAttribute("sent", true);
+        }
+        return "messages";
+    }
+
+
+
 
 
 }

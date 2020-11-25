@@ -14,8 +14,8 @@
             <select id="CategoryName" name="categoryName" required>
                 <option th:value="${null}">-wybierz kategorię-</option>
                 <option class="form-control" th:each="category: ${categories}"
-                        th:value="${category.categoryName}"
-                        th:text="${category.categoryName}"></option>
+                        th:value="${category}"
+                        th:text="${category}"></option>
             </select>
         </div>
         <div class="form-group">

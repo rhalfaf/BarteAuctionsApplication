@@ -27,6 +27,8 @@ public class AuctionService {
 
     final ModelMapper modelMapper;
 
+    List<AuctionDTO> randomAuctions = new ArrayList<>();
+
     public AuctionService(AuctionRepository auctionRepository, UserService userService, ModelMapper modelMapper, CategoryService categoryService) {
         this.auctionRepository = auctionRepository;
         this.userService = userService;
@@ -35,34 +37,36 @@ public class AuctionService {
     }
 
 
-    public AuctionDTO findById(long id) {
-        Auction auction = auctionRepository.findById(id);
+    public AuctionDTO findById(Long id) {
+        Auction auction = auctionRepository.findById(id).orElseThrow();
         if (auction == null) {
             throw new NoSuchElementException("Wybrana aukcja nie istnieje.");
         }
-        return modelMapper.map(auction, AuctionDTO.class);
+        return modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
     }
 
-    public UserAuctionDTO findAuctionOwner(AuctionDTO a) {
-
-        return userService.findByAuctions(a);
+    public User findAuctionOwner(AuctionDTO auction) {
+        return userService.findAuctionOwner(auction);
     }
 
-    public List<AuctionDTO> findAllByCategory(String category) {
+    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllByCategory(String category) {
         var tmpCategory = categoryService.findByName(category);
         if (tmpCategory == null) {
             throw new NoSuchElementException("Wybrana kategoria nie istnieje.");
         }
         return auctionRepository.findAllByCategory(tmpCategory)
-                .stream().filter(auction -> auction.isActive())
-                .map(auction -> modelMapper.map(auction, AuctionDTO.class))
+                .stream().filter(Auction::isActive)
+                .map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class))
                 .collect(Collectors.toList());
     }
 
     public List<AuctionDTO> getAuctionsForMainPage(int numberOfElements) {
-        List<AuctionDTO> randomAuctions = new ArrayList<>();
+
         List<Long> idsList = auctionRepository.findAuctionsIdOnly();
         Random random = new Random();
+        if(!randomAuctions.isEmpty()){
+            return randomAuctions;
+        }
         if (numberOfElements > idsList.size()) {
             numberOfElements = idsList.size();
             getAuctionsForMainPage(numberOfElements);
@@ -70,7 +74,7 @@ public class AuctionService {
             for (int i = 0; i < numberOfElements; i++) {
                 int randomIndex = random.nextInt(idsList.size());
                 Auction tmpAuction = auctionRepository.findById(idsList.get(randomIndex)).orElseThrow();
-                AuctionDTO auctionDTO = modelMapper.map(tmpAuction, AuctionDTO.class);
+                AuctionDTO auctionDTO = modelMapper.map(tmpAuction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
                 randomAuctions.add(auctionDTO);
                 idsList.remove(randomIndex);
             }
@@ -95,21 +99,21 @@ public class AuctionService {
                 }
             });
             auctionImages.get(0).setMainPhoto(true);
-            auction.setImages(auctionImages);
         }
         auction.setCategory(categoryService.findByName(category));
         Auction entityAuction = modelMapper.map(auction, Auction.class);
+        entityAuction.addImages(auctionImages);
         entityAuction.setStartDate(LocalDate.now());
         entityAuction.setExpireDate(LocalDate.now().plusDays(7));
         entityAuction.setActive(true);
         User user = userService.findByName(userName);
         user.addAuction(auctionRepository.save(entityAuction));
-        return modelMapper.map(entityAuction, AuctionDTO.class);
+        return modelMapper.map(entityAuction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
     }
 
     public List<AuctionDTO> observedAuctions(String userName) {
         User user = userService.findByName(userName);
-        return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+        return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
 
     @Transactional
@@ -119,9 +123,9 @@ public class AuctionService {
             Auction auction1 = auctionRepository.findById(id).orElseThrow();
             user.getObservedAuctions().remove(auction1);
         } catch (NoSuchElementException e) {
-            return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+            return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
         }
-        return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+        return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
     @Transactional
     public void deleteAuction(Long auctionId) {

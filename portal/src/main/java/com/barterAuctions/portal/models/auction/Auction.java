@@ -1,6 +1,8 @@
 package com.barterAuctions.portal.models.auction;
 
 import com.barterAuctions.portal.models.user.User;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,15 +18,17 @@ public class Auction {
     private Long id;
     private String localization;
     private String title;
-    @Lob
+    @Column(length = 2050)
     private String description;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "auction", orphanRemoval = true)
     private List<Image> images;
     private BigDecimal price;
     private boolean isActive;
     private LocalDate startDate;
     private LocalDate expireDate;
     @OneToOne
+    @JoinColumn(name="CATEGORY_ID")
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     private Category category;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
@@ -121,4 +125,20 @@ public class Auction {
     public void setImages(List<Image> images) {
         this.images = images;
     }
+
+    public void addImage(Image image) {
+        images.add(image);
+        image.setAuction(this);
+    }
+
+    public void addImages(List<Image> imagesToAdd) {
+        images = imagesToAdd;
+        imagesToAdd.forEach(image -> image.setAuction(this));
+    }
+
+    public void removeComment(Image image) {
+        images.remove(image);
+        image.setAuction(null);
+    }
+
 }

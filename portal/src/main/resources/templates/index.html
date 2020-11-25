@@ -11,7 +11,6 @@
           integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
 
-
 </head>
 <body>
 <th:block th:fragment="script">
@@ -44,7 +43,9 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">Kategorie <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li th:each="category: ${categories}"><a class="dropdown-item" th:href="@{/list/{category}(category = ${category.getCategoryName()})}" th:text="${category.categoryName}"></a>
+                        <li  th:each="category: ${categories}"><a class="dropdown-item"
+                                                                 th:href="@{/list/{category}(category = ${category})}"
+                                                                 th:text="${category}"></a>
                         </li>
                     </ul>
                 </li>
@@ -61,15 +62,22 @@
                 <li class="dropdown" sec:authorize="isAuthenticated()">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false"
-                       sec:authentication="name">...
-                        <span class="caret"></span>
-                    </a>
+                       th:text="${#authentication.name}">User name</a>
                     <ul class="dropdown-menu">
                         <li class="dropdown-item"><a class="dropdown-item" th:href="@{/myItems}">Moje aukcje</a></li>
-                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/addNewAuction}">Dodaj aukcje</a></li>
-                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/getObservedAuctions}">Obserwowane auckje</a></li>
+                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/addNewAuction}">Dodaj aukcje</a>
+                        </li>
+                        <li class="dropdown-item"><a class="dropdown-item" th:href="@{/getObservedAuctions}">Obserwowane
+                            auckje</a></li>
+                        <li th:unless="${unreadMessages}" class="dropdown-item"><a class="dropdown-item" th:href="@{/getMessages}">Wiadomości</a>
+                        </li>
+                        <li th:if="${unreadMessages}" class="dropdown-item "><a class="f-wgh-600 dropdown-item" th:href="@{/getMessages}">Wiadomości
+                            <span><span class="f-col-red">[[ ${unreadMessages}]]</span> <span class="glyphicon glyphicon-envelope f-col-red"></span></span>
+                        </a></li>
                     </ul>
                 </li>
+                <li th:if="${unreadMessages}" class="f-col-red f-wgh-600"><a class="padd-0" th:href="@{/getMessages}"> <span><span class="f-col-red ">[[ ${unreadMessages}]]</span> <span
+                        class="glyphicon glyphicon-envelope f-col-red"></span></span></a></li>
             </ul>
         </div>
     </div>
@@ -81,8 +89,8 @@
         <ul class="side-menu-list">
             <li class="padd-10px " th:each="category: ${categories}">
                 <a class="f-col-black f-wgh-600 f-size-large side-menu-item"
-                   th:href="@{/list/{category}(category = ${category.getCategoryName()})}"
-                   th:text="${category.categoryName}">
+                   th:href="@{/list/{category}(category = ${category})}"
+                   th:text="${category}">
 
                 </a>
             </li>
@@ -92,9 +100,11 @@
         <div class="row">
             <div th:each="thumbnail: ${thumbnails}" class="col-sm-6 col-md-4">
                 <a th:href="@{/auction/{id}(id=${thumbnail.id})}"/>
-                <div class="thumbnail" >
-                    <img th:each="image: ${thumbnail.images}" th:if="${image.isMainPhoto()}" th:src="@{${'/getImage/'+ image.id}}" th:alt="${thumbnail.getTitle()}">
-                    <img th:if="${#lists.size(thumbnail.images)} == 0" th:src="@{${'/getImage/449'}}" th:alt="${thumbnail.getTitle()}">
+                <div class="thumbnail">
+                    <img th:each="image: ${thumbnail.images}" th:if="${image.isMainPhoto()}"
+                         th:src="@{${'/getImage/'+ image.id}}" th:alt="${thumbnail.getTitle()}">
+                    <img th:if="${#lists.size(thumbnail.images)} == 0" th:src="@{${'/getImage/449'}}"
+                         th:alt="${thumbnail.getTitle()}">
                     <div class="caption">
                         <h3 th:text="${thumbnail.title}">Thumbnail label</h3>
                     </div>

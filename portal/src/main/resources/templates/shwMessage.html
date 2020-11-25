@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head th:replace="index::head">
+
+</head>
+<body>
+<th:block th:replace="index::script"></th:block>
+<nav th:replace="index :: navbar"></nav>
+<div class="container">
+    <label for="sender">Nadawca</label>
+    <p id="sender" th:text="${sender}" ></p>
+    <label for="topic">Temat</label>
+    <p id="topic" th:text="${messageTopic}" ></p>
+    <label for="text">Wiadomość</label>
+    <p id="text" th:text="${messageText}" ></p>
+    <label for="replayForm">Odpowiedz</label>
+    <form id="replayForm" action="#" th:object="${message}" th:action="@{/sendMessage}" th:method="post" >
+        <label for="replayTopic">Temat</label>
+        <input id="replayTopic" name="topic" class="form-control" type="text" th:value="'Re:' + ${messageTopic}">
+        <label for="messageText">Wiadomość</label>
+        <textarea id="messageText" class="form-control" maxlength="1000"  th:field="*{message}" rows="10" placeholder="Wiadomość"></textarea>
+        <input type="hidden" name="auctionOwner" th:value="${auctionOwner}">
+        <input type="hidden" name="auctionId" th:value="${auctionId}">
+        <button type="submit" class="btn btn-warning fa fa-check">Wyślij</button>
+    </form>
+
+</div>
+
+</body>
+</html>

@@ -1,8 +1,8 @@
 package com.barterAuctions.portal.models.messages;
 
-import com.barterAuctions.portal.models.auction.Auction;
-
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table
@@ -12,11 +12,21 @@ public class Message {
     private Long id;
     private String sender;
     private String recipient;
-    @Lob
+    @Column(length = 1000)
     private String message;
-    private boolean isRead;
-    @OneToOne
-    private Auction auctionWhichConcerns;
+    private String topic;
+    private Boolean isRead;
+    private LocalDateTime dateTime;
+    private Long auctionWhichConcernsId;
+    private Boolean showSender;
+    private Boolean showRecipient;
+
+
+    public Message() {
+        isRead = false;
+        showSender = true;
+        showRecipient = true;
+    }
 
     public Long getId() {
         return id;
@@ -50,19 +60,51 @@ public class Message {
         this.message = message;
     }
 
-    public Auction getAuctionWhichConcerns() {
-        return auctionWhichConcerns;
-    }
-
-    public void setAuctionWhichConcerns(Auction auctionWhichConcerns) {
-        this.auctionWhichConcerns = auctionWhichConcerns;
-    }
-
     public boolean isRead() {
         return isRead;
     }
 
     public void setRead(boolean read) {
         isRead = read;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public Long getAuctionWhichConcernsId() {
+        return auctionWhichConcernsId;
+    }
+
+    public void setAuctionWhichConcernsId(Long auctionWhichConcernsId) {
+        this.auctionWhichConcernsId = auctionWhichConcernsId;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public boolean isShowSender() {
+        return showSender;
+    }
+
+    public void setShowSender(boolean showSender) {
+        this.showSender = showSender;
+    }
+
+    public boolean isShowRecipient() {
+        return showRecipient;
+    }
+
+    public void setShowRecipient(boolean showRecipient) {
+        this.showRecipient = showRecipient;
     }
 }
