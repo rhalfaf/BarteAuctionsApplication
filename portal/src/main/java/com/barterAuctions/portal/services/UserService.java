@@ -77,14 +77,14 @@ public class UserService implements UserDetailsService {
         if(user == null){
             throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
         }
-        return user.getAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
+        return user.getAuctions().stream().filter(Auction::isActive).map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
 
     @Transactional
     public void addAuctionToObserved(String userName, Long auctionId) {
         User user = userRepository.findByName(userName);
         Auction auction = auctionRepository.findById(auctionId).orElseThrow();
-        if (userRepository.findByObservedAuctionsAndName(auctionId, user.getName()) != null) {
+        if (userRepository.findByObservedAuctionsAndName(auction, user.getName()) != null) {
             throw new IllegalStateException("Już obserwujęsz wybraną auckję.");
         } else {
             user.getObservedAuctions().add( modelMapper.map(auction, Auction.class));

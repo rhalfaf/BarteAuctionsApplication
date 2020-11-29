@@ -7,6 +7,9 @@
     <title>Barter Exchange</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
+<!--
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
           integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
@@ -34,7 +37,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" th:href="@{/}">Barter Exchange</a>
+            <a class="navbar-brand f-wgh-600" th:href="@{/}">Barter Exchange</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -44,17 +47,17 @@
                        aria-expanded="false">Kategorie <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li  th:each="category: ${categories}"><a class="dropdown-item"
-                                                                 th:href="@{/list/{category}(category = ${category})}"
+                                                                 th:href="@{/list/{inParam}(inParam = ${category})}"
                                                                  th:text="${category}"></a>
                         </li>
                     </ul>
                 </li>
             </ul>
-            <form class="navbar-form navbar-left">
+            <form class="navbar-form navbar-left" action="#" th:action="@{/searchPageable}" method="get">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search">
+                    <input type="text" name="inParam" class="form-control" placeholder="Szukaj">
                 </div>
-                <button type="submit" class="btn btn-default">Submit</button>
+                <button type="submit" class="btn btn-default">Szukaj</button>
             </form>
             <ul class="nav navbar-nav navbar-right">
                 <li sec:authorize="!isAuthenticated()"><a th:href="@{/login}">Login</a></li>
@@ -82,14 +85,13 @@
         </div>
     </div>
 </nav>
-<div class="container bg-warning tx-al-cent padd-10px f-wgh-600"
-     th:if="${error}"><a class="bg-warning  f-col-red" th:text="${error}"></a></div>
+<p class="error" th:if="${error}" th:text="${error}"></p>
 <div class="index-total-content">
     <div class="index-side-menu">
         <ul class="side-menu-list">
             <li class="padd-10px " th:each="category: ${categories}">
                 <a class="f-col-black f-wgh-600 f-size-large side-menu-item"
-                   th:href="@{/list/{category}(category = ${category})}"
+                   th:href="@{/list/{inParam}(inParam = ${category})}"
                    th:text="${category}">
 
                 </a>
@@ -98,7 +100,7 @@
     </div>
     <div class="index-content">
         <div class="row">
-            <div th:each="thumbnail: ${thumbnails}" class="col-sm-6 col-md-4">
+            <div th:each="thumbnail: ${thumbnails}" class="col-sm-6 col-md-4 mx-width-25prc">
                 <a th:href="@{/auction/{id}(id=${thumbnail.id})}"/>
                 <div class="thumbnail">
                     <img th:each="image: ${thumbnail.images}" th:if="${image.isMainPhoto()}"

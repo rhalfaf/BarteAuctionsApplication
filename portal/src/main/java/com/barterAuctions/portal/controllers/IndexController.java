@@ -70,5 +70,10 @@ public class IndexController {
         return "index";
     }
 
+    @GetMapping("/gallery")
+    public String gallery(){
+        return "gallery";
+    }
+
 
 }

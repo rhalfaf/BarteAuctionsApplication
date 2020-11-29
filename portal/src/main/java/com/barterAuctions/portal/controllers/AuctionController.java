@@ -1,7 +1,6 @@
 package com.barterAuctions.portal.controllers;
 
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
-import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Image;
 import com.barterAuctions.portal.models.messages.Message;
@@ -10,12 +9,18 @@ import com.barterAuctions.portal.services.AuctionService;
 import com.barterAuctions.portal.services.CategoryService;
 import com.barterAuctions.portal.services.ImageService;
 import com.barterAuctions.portal.services.UserService;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -24,6 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class AuctionController {
@@ -32,12 +39,14 @@ public class AuctionController {
     final AuctionService auctionService;
     final UserService userService;
     final ImageService imageService;
+    final ModelMapper modelMapper;
 
-    public AuctionController(CategoryService categoryService, AuctionService auctionService, UserService userService, ImageService imageService) {
+    public AuctionController(CategoryService categoryService, AuctionService auctionService, UserService userService, ImageService imageService, ModelMapper modelMapper) {
         this.categoryService = categoryService;
         this.auctionService = auctionService;
         this.userService = userService;
         this.imageService = imageService;
+        this.modelMapper = modelMapper;
     }
 
 
@@ -52,19 +61,59 @@ public class AuctionController {
             return "item-single";
 
         } catch (NoSuchElementException e) {
-            model.addAttribute("error", e.getMessage());
-            return "item-single";
+            model.addAttribute("error", "Nie znaleziono aukcji.");
+            return "index";
         }
     }
 
-    @GetMapping("/list/{category}")
-    String list(@PathVariable String category, Model model) {
+   /* @PostMapping("/search")
+    public String search(@RequestParam("search") String searchPhrase, Model model) {
+        List<AuctionDTO> foundAuctions = auctionService.searchAuctions(searchPhrase);
+        if (foundAuctions.isEmpty()) {
+            model.addAttribute("error", "Niestety nie znaleziono szukanej frazy.");
+            return "items";
+        }
+        model.addAttribute("auctions", foundAuctions);
+        return "items";
+    }*/
+
+    @GetMapping("/searchPageable")
+    public String searchPageable(@RequestParam("inParam") String inParam,
+                                 Model model,
+                                 @RequestParam("page") Optional<Integer> page,
+                                 @RequestParam("size") Optional<Integer> size) {
+        int currentPage = page.orElse(1);
+        int pageSize = size.orElse(10);
+        Page<Auction> auctions = auctionService.searchAuctionsPageable(inParam,PageRequest.of(currentPage - 1,pageSize));
+        Page<AuctionDTO> dtos = auctions.map(AuctionDTO::new);
+        /*TODO
+        * Ogarnąć AuctionDTO - tylko czy w warstwie controllera?
+        *
+        * */
+
+        model.addAttribute("auctions", dtos);
+        model.addAttribute("inParam", inParam );
+        int totalPages = auctions.getTotalPages();
+        model.addAttribute("totalPages", totalPages);
+        if(totalPages > 0){
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
+            model.addAttribute("pageNumbers", pageNumbers);
+        }
+        return "items";
+    }
+
+    @GetMapping("/list/{inParam}")
+    String list(@PathVariable("inParam")String category,
+                Model model,
+                @RequestParam("page") Optional<Integer> page,
+                @RequestParam("size") Optional<Integer> size) {
         try {
-            List<AuctionDTO> auctions = auctionService.findAllByCategory(category);
+            List<AuctionDTO> auctions = auctionService.findAllByCategory(category, Pageable.unpaged());
             model.addAttribute("auctions", auctions);
+            model.addAttribute("inParam", category );
             return "items";
         } catch (NoSuchElementException e) {
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("error", "Nie znaleziono kategorii. ");
             return "index";
         }
     }
@@ -95,19 +144,19 @@ public class AuctionController {
     }
 
     @GetMapping("/addToObserved/{id}")
-    public String addAuctionToObserved(@PathVariable("id") Long id, Model model) {
+    public String addAuctionToObserved(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         AuctionDTO auctionDTO = auctionService.findById(id);
         try {
-            if (!userName.equals(auctionService.findAuctionOwner(auctionDTO))) {
-                userService.addAuctionToObserved(userName, id);
-                model.addAttribute("error", "Nie możesz obserwować własnej auckji. ");
+            if (userName.equals(auctionService.findAuctionOwner(auctionDTO).getName())) {
+                redirectAttributes.addFlashAttribute("error", "Nie możesz obserwować własnej auckji.");
                 return "redirect:/auction/" + id;
             }
         } catch (IllegalStateException e) {
-            model.addAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/auction/" + id;
         }
+        userService.addAuctionToObserved(userName, id);
         return "redirect:/auction/" + id;
     }
 

@@ -1,12 +1,15 @@
 package com.barterAuctions.portal.services;
 
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
-import com.barterAuctions.portal.models.DTO.UserAuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Image;
 import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.repositories.AuctionRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +17,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,26 +41,30 @@ public class AuctionService {
     }
 
 
-    public AuctionDTO findById(Long id) {
-        Auction auction = auctionRepository.findById(id).orElseThrow();
-        if (auction == null) {
-            throw new NoSuchElementException("Wybrana aukcja nie istnieje.");
-        }
-        return modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
+    public AuctionDTO findById(Long id) throws NoSuchElementException {
+            Auction auction = auctionRepository.findById(id).orElseThrow();
+            return modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
+    }
+
+    /*public List<AuctionDTO> searchAuctions(String searchPhrase){
+        return auctionRepository.findAllByTitleIgnoreCaseContainingOrDescriptionIgnoreCaseContaining(searchPhrase,searchPhrase).stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
+    }*/
+
+
+    public Page<Auction> searchAuctionsPageable(String searchPhrase, Pageable pageable){
+        Page<Auction> auctions = auctionRepository.findAllByTitleIgnoreCaseContainingOrDescriptionIgnoreCaseContaining(searchPhrase,searchPhrase, pageable);
+        return auctions;
     }
 
     public User findAuctionOwner(AuctionDTO auction) {
         return userService.findAuctionOwner(auction);
     }
 
-    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllByCategory(String category) {
-        var tmpCategory = categoryService.findByName(category);
-        if (tmpCategory == null) {
-            throw new NoSuchElementException("Wybrana kategoria nie istnieje.");
-        }
-        return auctionRepository.findAllByCategory(tmpCategory)
+    public List<AuctionDTO> findAllByCategory(String category, Pageable pageable) throws NoSuchElementException {
+        var tmpCategory = categoryService.findByName(category).orElseThrow();
+        return auctionRepository.findAllByCategory(tmpCategory, pageable)
                 .stream().filter(Auction::isActive)
-                .map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class))
+                .map(auction -> modelMapper.map(auction, AuctionDTO.class))
                 .collect(Collectors.toList());
     }
 
@@ -100,7 +108,7 @@ public class AuctionService {
             });
             auctionImages.get(0).setMainPhoto(true);
         }
-        auction.setCategory(categoryService.findByName(category));
+        auction.setCategory(categoryService.findByName(category).orElseThrow());
         Auction entityAuction = modelMapper.map(auction, Auction.class);
         entityAuction.addImages(auctionImages);
         entityAuction.setStartDate(LocalDate.now());

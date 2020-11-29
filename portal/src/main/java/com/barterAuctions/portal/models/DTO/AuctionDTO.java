@@ -1,5 +1,6 @@
 package com.barterAuctions.portal.models.DTO;
 
+import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Category;
 import com.barterAuctions.portal.models.auction.Image;
 
@@ -19,6 +20,20 @@ public class AuctionDTO {
     private BigDecimal price;
     private Category category;
     private boolean isActive;
+
+    public AuctionDTO() {
+    }
+
+    public AuctionDTO(Auction auction) {
+        this.id = auction.getId();
+        this.title = auction.getTitle();
+        this.localization = auction.getLocalization();
+        this.description = auction.getDescription();
+        this.images = auction.getImages();
+        this.price = auction.getPrice();
+        this.category = auction.getCategory();
+        this.isActive = auction.isActive();
+    }
 
     public Long getId() {
         return id;

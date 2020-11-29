@@ -9,7 +9,7 @@
 <section>
     <nav th:replace="index :: navbar"></nav>
     <div class="container b-col-white" th:object="${auction}">
-        <a class="f-col-red" th:if="${error}" th:text="${error}"></a>
+        <p class="error" th:if="${error}" th:text="${error}"></p>
         <a class="f-col-black margin-1em" th:text="${auction.category.categoryName}"
            th:href="@{/list/{category}(category = ${auction.category.getCategoryName()})}">Category</a>
         <h3 th:text="*{title}">Auction title</h3>
@@ -19,15 +19,20 @@
                     <div id="carousel" class="carousel slide" data-ride="carousel"
                          th:if="${#lists.size(auction.images)} != 0">
                         <div class="carousel-inner" role="listbox">
-                            <div class="item active" th:each="image: *{images}" th:if="${image.isMainPhoto()}"
-                                 hidden>
-                                <img th:id="${image.id}" class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
-                                     th:alt="${auction.title}">
+                            <div class="item active" th:each="image: *{images}" th:if="${image.isMainPhoto()}" hidden>
+                                <a th:href="@{${'/getImage/'+ image.id}}" target="_blank">
+                                    <img class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
+                                         th:alt="${auction.title}" data-toggle="modal" data-target="#modal-shwImg"
+                                         th:attr="data-target='#modal-shwImg'+${image.id }">
+                                </a>
                             </div>
                             <div class="item" th:each="image: *{images}" th:unless="${image.isMainPhoto()}">
-                                <img th:id="${image.id}" class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
-                                     th:alt="${auction.title}">
+                                <a th:href="@{${'/getImage/'+ image.id}}" target="_blank">
+                                    <img th:id="${image.id}" class="img-carousel" th:src="@{${'/getImage/'+ image.id}}"
+                                         th:alt="${auction.title}">
+                                </a>
                             </div>
+
                         </div>
                         <!-- Controls -->
                         <a class="left carousel-control" href="#carousel" role="button" data-slide="prev">
@@ -75,10 +80,13 @@
                                     <div class="modal-body">
                                         <form action="#" th:action="@{/sendMessage}" method="post"
                                               th:object="${message}">
-                                            <label for="topic" >Temat</label>
-                                            <input maxlength="254" class="form-control" id="topic"  type="text" name="topic" th:value="${auction.title}">
+                                            <label for="topic">Temat</label>
+                                            <input maxlength="254" class="form-control" id="topic" type="text"
+                                                   name="topic" th:value="${auction.title}">
                                             <label for="message">Wiadomość</label>
-                                            <textarea maxlength="1000" class="form-control" id="message" th:field="*{message}" rows="10" placeholder="Wiadomość"></textarea>
+                                            <textarea maxlength="1000" class="form-control" id="message"
+                                                      th:field="*{message}" rows="10"
+                                                      placeholder="Wiadomość"></textarea>
                                             <input type="hidden" name="auctionOwner" th:value="${auctionOwner.name}">
                                             <input type="hidden" name="auctionId" th:value="${auction.id}">
                                             <button type="button" class="btn btn-outline pull-left"

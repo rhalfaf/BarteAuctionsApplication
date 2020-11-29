@@ -13,8 +13,8 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     User findByAuctions(Auction a);
 
-    @Query("select u from User u where u.name =:username and :auctionId member u.observedAuctions ")
-    User findByObservedAuctionsAndName(Long auctionId, String username);
+    //@Query("select u from User u where u.name =:username and :auctionId member u.observedAuctions ")
+    User findByObservedAuctionsAndName(Auction auction, String username);
 
     boolean existsByName(String name);
 
