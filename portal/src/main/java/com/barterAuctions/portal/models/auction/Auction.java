@@ -5,7 +5,6 @@ import org.hibernate.annotations.LazyToOne;
 import org.hibernate.annotations.LazyToOneOption;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,7 +22,7 @@ public class Auction {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "auction", orphanRemoval = true)
     private List<Image> images;
     private BigDecimal price;
-    private boolean isActive;
+    private Boolean active;
     private LocalDate startDate;
     private LocalDate expireDate;
     @OneToOne
@@ -47,11 +46,11 @@ public class Auction {
     }
 
     public boolean isActive() {
-        return isActive;
+        return active;
     }
 
     public void setActive(boolean active) {
-        isActive = active;
+        this.active = active;
     }
 
     public LocalDate getStartDate() {

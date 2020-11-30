@@ -72,12 +72,20 @@ public class UserService implements UserDetailsService {
         return userRepository.findByAuctions(auctionEntity);
     }
 
-    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllAuctionsOfAUser(String username){
+    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllActiveAuctionsOfAUser(String username){
         User user = userRepository.findByName(username);
         if(user == null){
             throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
         }
         return user.getAuctions().stream().filter(Auction::isActive).map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
+    }
+
+    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllAuctionsOfAUser(String username){
+        User user = userRepository.findByName(username);
+        if(user == null){
+            throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
+        }
+        return user.getAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
 
     @Transactional

@@ -7,8 +7,6 @@ import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.repositories.AuctionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +15,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,29 +40,27 @@ public class AuctionService {
 
     public AuctionDTO findById(Long id) throws NoSuchElementException {
             Auction auction = auctionRepository.findById(id).orElseThrow();
+            if(!auction.isActive()){
+                throw new NoSuchElementException();
+            }
             return modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
     }
 
-    /*public List<AuctionDTO> searchAuctions(String searchPhrase){
-        return auctionRepository.findAllByTitleIgnoreCaseContainingOrDescriptionIgnoreCaseContaining(searchPhrase,searchPhrase).stream().map(auction -> modelMapper.map(auction, AuctionDTO.class)).collect(Collectors.toList());
-    }*/
-
-
-    public Page<Auction> searchAuctionsPageable(String searchPhrase, Pageable pageable){
-        Page<Auction> auctions = auctionRepository.findAllByTitleIgnoreCaseContainingOrDescriptionIgnoreCaseContaining(searchPhrase,searchPhrase, pageable);
-        return auctions;
+    public Page<AuctionDTO> searchAuctionsPageable(String searchPhrase, Pageable pageable){
+        Page<Auction> auctions = auctionRepository.findAllByActiveTrueAndTitleIgnoreCaseContainingOrActiveTrueAndDescriptionIgnoreCaseContaining(searchPhrase,searchPhrase , pageable);
+        Page<AuctionDTO> auctionDTOs = auctions.map(AuctionDTO::new);
+        return auctionDTOs;
     }
 
     public User findAuctionOwner(AuctionDTO auction) {
         return userService.findAuctionOwner(auction);
     }
 
-    public List<AuctionDTO> findAllByCategory(String category, Pageable pageable) throws NoSuchElementException {
+    public Page<AuctionDTO> findAllByCategoryPageable(String category, Pageable pageable) throws NoSuchElementException {
         var tmpCategory = categoryService.findByName(category).orElseThrow();
-        return auctionRepository.findAllByCategory(tmpCategory, pageable)
-                .stream().filter(Auction::isActive)
-                .map(auction -> modelMapper.map(auction, AuctionDTO.class))
-                .collect(Collectors.toList());
+        Page<Auction> auctions = auctionRepository.findAllByCategoryAndActive(tmpCategory,true, pageable);
+        auctions.stream().filter(Auction::isActive);
+        return auctions.map(AuctionDTO::new);
     }
 
     public List<AuctionDTO> getAuctionsForMainPage(int numberOfElements) {

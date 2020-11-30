@@ -19,7 +19,7 @@ public class AuctionDTO {
     private List<Image> images;
     private BigDecimal price;
     private Category category;
-    private boolean isActive;
+    private Boolean active;
 
     public AuctionDTO() {
     }
@@ -32,7 +32,7 @@ public class AuctionDTO {
         this.images = auction.getImages();
         this.price = auction.getPrice();
         this.category = auction.getCategory();
-        this.isActive = auction.isActive();
+        this.active = auction.isActive();
     }
 
     public Long getId() {
@@ -91,11 +91,11 @@ public class AuctionDTO {
         this.category = category;
     }
 
-    public boolean isActive() {
-        return isActive;
+    public Boolean isActive() {
+        return active;
     }
 
-    public void setActive(boolean active) {
-        isActive = active;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

@@ -25,4 +25,11 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(NumberFormatException.class)
+    public String numberFormatException(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", "Przepraszamy coś poszło nie tak.");
+        return "redirect:/";
+
+    }
+
 }

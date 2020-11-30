@@ -27,13 +27,13 @@
                        th:text="${#strings.abbreviate(auction.description,300)}"></a>
                 </div>
             </td>
-            <td th:if="${auction.active}">
+            <td th:if="${auction.isActive()}">
                 <a  type="button" class="btn btn-primary" title="Usuń aukcję"
                    sec:authorize="isAuthenticated()"
                    data-toggle="modal" data-target="#modal-delete"
                    th:attr="data-target='#modal-delete'+${auction.id }"><span class="glyphicon glyphicon-trash"></span></a>
             </td>
-            <td th:if="${!auction.active}">
+            <td th:if="${!auction.isActive()}">
                 <a  type="button" class="btn btn-primary" title="Usuń aukcję"
                    sec:authorize="isAuthenticated()"
                    data-toggle="modal" data-target="#modal-issue"

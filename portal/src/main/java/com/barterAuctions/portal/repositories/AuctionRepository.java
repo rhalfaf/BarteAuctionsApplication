@@ -15,13 +15,12 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
     Auction findById(long id);
 
-    //@Query("select a from Auction a where a.category =: category")
-    List<Auction> findAllByCategory(Category category, Pageable pageable);
+    Page<Auction> findAllByCategoryAndActive(Category category, Boolean active, Pageable pageable);
 
-    @Query("SELECT id FROM Auction")
+    @Query("SELECT a.id FROM Auction a where a.active = true")
     List<Long> findAuctionsIdOnly();
 
-    Page<Auction> findAllByTitleIgnoreCaseContainingOrDescriptionIgnoreCaseContaining(String searchPhrase, String searchPhrase1, Pageable pageable);
+    Page<Auction> findAllByActiveTrueAndTitleIgnoreCaseContainingOrActiveTrueAndDescriptionIgnoreCaseContaining(String searchPhrase, String searchPhrase1, Pageable pageable);
 
 
 }

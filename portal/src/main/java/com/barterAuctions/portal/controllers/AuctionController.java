@@ -1,7 +1,6 @@
 package com.barterAuctions.portal.controllers;
 
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
-import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Image;
 import com.barterAuctions.portal.models.messages.Message;
 import com.barterAuctions.portal.models.user.User;
@@ -11,9 +10,7 @@ import com.barterAuctions.portal.services.ImageService;
 import com.barterAuctions.portal.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,7 +48,8 @@ public class AuctionController {
 
 
     @GetMapping("/auction/{id}")
-    public String auction(@PathVariable("id") long id, Model model) {
+    public String auction(@PathVariable("id") Long id, Model model) {
+
         try {
             AuctionDTO auction = auctionService.findById(id);
             model.addAttribute("auction", auction);
@@ -74,39 +72,47 @@ public class AuctionController {
                                  @RequestParam("size") Optional<Integer> size) {
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(10);
-        Page<Auction> auctions = auctionService.searchAuctionsPageable(inParam, PageRequest.of(currentPage - 1, pageSize));
-        Page<AuctionDTO> dtos = auctions.map(AuctionDTO::new);
-        model.addAttribute("auctions", dtos);
-        model.addAttribute("inParam", inParam);
-        int totalPages = auctions.getTotalPages();
-        model.addAttribute("totalPages", totalPages);
-        if (totalPages > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
+        Page<AuctionDTO> auctions = auctionService.searchAuctionsPageable(inParam, PageRequest.of(currentPage - 1, pageSize));
+        if (!auctions.isEmpty()) {
+            createModel(inParam, model, auctions);
+            return "items";
+        } else {
+            model.addAttribute("error", "Niestety nie znaleziono szukanej frazy.");
+            return "index";
         }
-        return "items";
     }
 
     @GetMapping("/list/{inParam}")
-    String list(@PathVariable("inParam") String category,
+    String list(@PathVariable("inParam") String inParam,
                 Model model,
                 @RequestParam("page") Optional<Integer> page,
                 @RequestParam("size") Optional<Integer> size) {
+        int currentPage = page.orElse(1);
+        int pageSize = size.orElse(10);
         try {
-            List<AuctionDTO> auctions = auctionService.findAllByCategory(category, Pageable.unpaged());
-            model.addAttribute("auctions", auctions);
-            model.addAttribute("inParam", category);
-            return "items";
+            Page<AuctionDTO> auctions = auctionService.findAllByCategoryPageable(inParam, PageRequest.of(currentPage - 1, pageSize));
+            createModel(inParam, model, auctions);
+            return "itemsByCategory";
         } catch (NoSuchElementException e) {
             model.addAttribute("error", "Nie znaleziono kategorii. ");
             return "index";
         }
     }
 
+    private void createModel(String inParam, Model model, Page<AuctionDTO> auctions) {
+        model.addAttribute("auctions", auctions);
+        model.addAttribute("inParam", inParam);
+        model.addAttribute("totalPages", auctions.getTotalPages());
+        if (auctions.getTotalPages() > 0) {
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, auctions.getTotalPages()).boxed().collect(Collectors.toList());
+            model.addAttribute("pageNumbers", pageNumbers);
+        }
+    }
+
     @GetMapping("/showAuctions/{user}")
     String listByUser(@PathVariable String user, Model model) {
         try {
-            List<AuctionDTO> auctions = userService.findAllAuctionsOfAUser(user);
+            List<AuctionDTO> auctions = userService.findAllActiveAuctionsOfAUser(user);
             model.addAttribute("auctions", auctions);
             return "items";
         } catch (NoSuchElementException e) {
