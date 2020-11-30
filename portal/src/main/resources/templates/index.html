@@ -89,8 +89,8 @@
 <div class="index-total-content">
     <div class="index-side-menu">
         <ul class="side-menu-list">
-            <li class="padd-10px " th:each="category: ${categories}">
-                <a class="f-col-black f-wgh-600 f-size-large side-menu-item"
+            <li class="padd-5px " th:each="category: ${categories}">
+                <a class="f-col-custom-black f-size-medium side-menu-item"
                    th:href="@{/list/{inParam}(inParam = ${category})}"
                    th:text="${category}">
 

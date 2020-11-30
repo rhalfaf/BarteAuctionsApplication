@@ -76,6 +76,10 @@ a:hover{
 .f-col-black{
     color: black;
 }
+.f-col-custom-black{
+    color: #000000b0;
+}
+
 .f-col-red{
     color: red;
 }
@@ -85,7 +89,9 @@ a:hover{
 .float-left{
     float: left;
 }
-
+.f-size-medium{
+    font-size: medium;
+}
 .f-size-large{
     font-size: large;
 }
@@ -106,6 +112,9 @@ a:hover{
 }
 .padd-10px{
     padding: 10px;
+}
+.padd-5px{
+    padding: 5px;
 }
 .padd-top-bott-10px{
     padding: 10px 0;

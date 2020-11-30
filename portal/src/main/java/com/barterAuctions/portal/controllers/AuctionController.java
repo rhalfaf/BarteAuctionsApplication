@@ -66,16 +66,6 @@ public class AuctionController {
         }
     }
 
-   /* @PostMapping("/search")
-    public String search(@RequestParam("search") String searchPhrase, Model model) {
-        List<AuctionDTO> foundAuctions = auctionService.searchAuctions(searchPhrase);
-        if (foundAuctions.isEmpty()) {
-            model.addAttribute("error", "Niestety nie znaleziono szukanej frazy.");
-            return "items";
-        }
-        model.addAttribute("auctions", foundAuctions);
-        return "items";
-    }*/
 
     @GetMapping("/searchPageable")
     public String searchPageable(@RequestParam("inParam") String inParam,
@@ -84,18 +74,13 @@ public class AuctionController {
                                  @RequestParam("size") Optional<Integer> size) {
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(10);
-        Page<Auction> auctions = auctionService.searchAuctionsPageable(inParam,PageRequest.of(currentPage - 1,pageSize));
+        Page<Auction> auctions = auctionService.searchAuctionsPageable(inParam, PageRequest.of(currentPage - 1, pageSize));
         Page<AuctionDTO> dtos = auctions.map(AuctionDTO::new);
-        /*TODO
-        * Ogarnąć AuctionDTO - tylko czy w warstwie controllera?
-        *
-        * */
-
         model.addAttribute("auctions", dtos);
-        model.addAttribute("inParam", inParam );
+        model.addAttribute("inParam", inParam);
         int totalPages = auctions.getTotalPages();
         model.addAttribute("totalPages", totalPages);
-        if(totalPages > 0){
+        if (totalPages > 0) {
             List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages).boxed().collect(Collectors.toList());
             model.addAttribute("pageNumbers", pageNumbers);
         }
@@ -103,14 +88,14 @@ public class AuctionController {
     }
 
     @GetMapping("/list/{inParam}")
-    String list(@PathVariable("inParam")String category,
+    String list(@PathVariable("inParam") String category,
                 Model model,
                 @RequestParam("page") Optional<Integer> page,
                 @RequestParam("size") Optional<Integer> size) {
         try {
             List<AuctionDTO> auctions = auctionService.findAllByCategory(category, Pageable.unpaged());
             model.addAttribute("auctions", auctions);
-            model.addAttribute("inParam", category );
+            model.addAttribute("inParam", category);
             return "items";
         } catch (NoSuchElementException e) {
             model.addAttribute("error", "Nie znaleziono kategorii. ");

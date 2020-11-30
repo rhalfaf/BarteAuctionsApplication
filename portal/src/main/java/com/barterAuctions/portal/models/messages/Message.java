@@ -107,4 +107,6 @@ public class Message {
     public void setShowRecipient(boolean showRecipient) {
         this.showRecipient = showRecipient;
     }
+
+
 }

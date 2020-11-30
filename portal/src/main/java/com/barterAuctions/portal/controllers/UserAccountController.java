@@ -19,6 +19,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.List;
 
 @EnableScheduling
@@ -75,9 +76,17 @@ public class UserAccountController {
 
     @GetMapping(value = {"/getMessages", "/getMessages/{sent}"})
     public String getMessages(@PathVariable(required = false) String sent, Model model) {
+        Comparator<Message> myComparator = new Comparator<Message>() {
+            @Override
+            public int compare(Message o1, Message o2) {
+                return o1.getDateTime().compareTo(o2.getDateTime());
+            }
+        };
         String loggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
         List<Message> sentMessages = messageService.getSentMessages(loggedUser);
         List<Message> receiptMessages = messageService.getReceiptedMessages(loggedUser);
+        sentMessages.sort(myComparator.reversed());
+        receiptMessages.sort(myComparator.reversed());
         if (sent == null) {
             model.addAttribute("messages", receiptMessages);
             model.addAttribute("sent", false);
