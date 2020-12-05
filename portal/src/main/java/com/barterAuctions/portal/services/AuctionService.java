@@ -6,6 +6,7 @@ import com.barterAuctions.portal.models.auction.Image;
 import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.repositories.AuctionRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,13 +31,13 @@ public class AuctionService {
 
     List<AuctionDTO> randomAuctions = new ArrayList<>();
 
-    public AuctionService(AuctionRepository auctionRepository, UserService userService, ModelMapper modelMapper, CategoryService categoryService) {
+    @Autowired
+    public AuctionService( AuctionRepository auctionRepository, UserService userService, ModelMapper modelMapper, CategoryService categoryService) {
         this.auctionRepository = auctionRepository;
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.categoryService = categoryService;
     }
-
 
     public AuctionDTO findById(Long id) throws NoSuchElementException {
             Auction auction = auctionRepository.findById(id).orElseThrow();
@@ -44,6 +45,10 @@ public class AuctionService {
                 throw new NoSuchElementException();
             }
             return modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
+    }
+
+    public Optional<Auction> tmpFindById(Long id) {
+        return auctionRepository.findById(id);
     }
 
     public Page<AuctionDTO> searchAuctionsPageable(String searchPhrase, Pageable pageable){
@@ -59,12 +64,10 @@ public class AuctionService {
     public Page<AuctionDTO> findAllByCategoryPageable(String category, Pageable pageable) throws NoSuchElementException {
         var tmpCategory = categoryService.findByName(category).orElseThrow();
         Page<Auction> auctions = auctionRepository.findAllByCategoryAndActive(tmpCategory,true, pageable);
-        auctions.stream().filter(Auction::isActive);
         return auctions.map(AuctionDTO::new);
     }
 
     public List<AuctionDTO> getAuctionsForMainPage(int numberOfElements) {
-
         List<Long> idsList = auctionRepository.findAuctionsIdOnly();
         Random random = new Random();
         if(!randomAuctions.isEmpty()){
@@ -120,7 +123,7 @@ public class AuctionService {
     }
 
     @Transactional
-    public List<AuctionDTO> stopObserveAuction(String userName, Long id) {
+    public List<AuctionDTO> stopObserveAuction(String userName, Long id) throws NoSuchElementException {
         User user = userService.findByName(userName);
         try {
             Auction auction1 = auctionRepository.findById(id).orElseThrow();
@@ -141,4 +144,9 @@ public class AuctionService {
         auction.setStartDate(LocalDate.now());
         auction.setExpireDate(auction.getStartDate().plusDays(7));
     }
+
+
+
+
+
 }

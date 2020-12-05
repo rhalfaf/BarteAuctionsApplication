@@ -26,15 +26,32 @@ public class Auction {
     private LocalDate startDate;
     private LocalDate expireDate;
     @OneToOne
-    @JoinColumn(name="CATEGORY_ID")
+    @JoinColumn(name = "CATEGORY_ID")
     @LazyToOne(LazyToOneOption.NO_PROXY)
     private Category category;
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
 
-
     public Auction() {
+
+    }
+
+    public Auction(Long id, String localization, String title, String description,
+                   List<Image> images, BigDecimal price, Boolean active, LocalDate startDate,
+                   LocalDate expireDate, Category category, User user) {
+
+        this.id = id;
+        this.localization = localization;
+        this.title = title;
+        this.description = description;
+        this.images = images;
+        this.price = price;
+        this.active = active;
+        this.startDate = startDate;
+        this.expireDate = expireDate;
+        this.category = category;
+        this.user = user;
     }
 
     public User getUser() {
@@ -135,9 +152,5 @@ public class Auction {
         imagesToAdd.forEach(image -> image.setAuction(this));
     }
 
-    public void removeComment(Image image) {
-        images.remove(image);
-        image.setAuction(null);
-    }
 
 }

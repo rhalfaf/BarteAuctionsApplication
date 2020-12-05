@@ -4,6 +4,8 @@ import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Category;
 import com.barterAuctions.portal.models.auction.Image;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.FetchType;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.List;

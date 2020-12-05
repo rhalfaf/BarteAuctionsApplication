@@ -7,13 +7,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
+
 
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
-
-    Auction findById(long id);
+    @Override
+    Optional<Auction> findById(Long id);
 
     Page<Auction> findAllByCategoryAndActive(Category category, Boolean active, Pageable pageable);
 

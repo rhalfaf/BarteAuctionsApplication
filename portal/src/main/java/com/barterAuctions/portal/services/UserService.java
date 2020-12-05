@@ -89,7 +89,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void addAuctionToObserved(String userName, Long auctionId) {
+    public void addAuctionToObserved(String userName, Long auctionId) throws IllegalStateException {
         User user = userRepository.findByName(userName);
         Auction auction = auctionRepository.findById(auctionId).orElseThrow();
         if (userRepository.findByObservedAuctionsAndName(auction, user.getName()) != null) {

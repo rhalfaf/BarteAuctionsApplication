@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 
 @Controller
 @ControllerAdvice
-public class IndexController {
+public class IndexController
+{
 
     final CategoryService categoryService;
 

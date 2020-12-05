@@ -138,16 +138,17 @@ public class AuctionController {
     public String addAuctionToObserved(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         AuctionDTO auctionDTO = auctionService.findById(id);
+        if (userName.equals(auctionService.findAuctionOwner(auctionDTO).getName())) {
+            redirectAttributes.addFlashAttribute("error", "Nie możesz obserwować własnej auckji.");
+            return "redirect:/auction/" + id;
+        }
         try {
-            if (userName.equals(auctionService.findAuctionOwner(auctionDTO).getName())) {
-                redirectAttributes.addFlashAttribute("error", "Nie możesz obserwować własnej auckji.");
-                return "redirect:/auction/" + id;
-            }
+            userService.addAuctionToObserved(userName, id);
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/auction/" + id;
         }
-        userService.addAuctionToObserved(userName, id);
+
         return "redirect:/auction/" + id;
     }
 
