@@ -37,6 +37,7 @@ Implemented features:
 ## Technologies
 * Spring Boot
 * Spring security
+* Junit/Mockito
 * Maven
 * Model mapper
 * Hibernate validator
