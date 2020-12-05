@@ -32,6 +32,7 @@ Implemented features:
 ![screenshot](./portal/gitPhotos/8.jpg)
 ![screenshot](./portal/gitPhotos/9.jpg)
 ![screenshot](./portal/gitPhotos/10.jpg)
+![screenshot](./portal/gitPhotos/11.jpg)
 
 ## Technologies
 * Spring Boot
