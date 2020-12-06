@@ -38,7 +38,7 @@ public class MessagesController {
                               @RequestParam("auctionId") Long auctionId,
                               @RequestParam("messageTopic") String messageTopic,
                               Model model){
-        messageService.setMessageAsReaded(id);
+        messageService.setMessageAsRead(id);
         model.addAttribute("messageText",msgText);
         model.addAttribute("messageTopic",messageTopic);
         model.addAttribute("sender",sender);

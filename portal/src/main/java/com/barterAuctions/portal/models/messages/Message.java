@@ -28,6 +28,19 @@ public class Message {
         showRecipient = true;
     }
 
+    public Message(Long id, String sender, String recipient, String message, String topic, Boolean isRead, LocalDateTime dateTime, Long auctionWhichConcernsId, Boolean showSender, Boolean showRecipient) {
+        this.id = id;
+        this.sender = sender;
+        this.recipient = recipient;
+        this.message = message;
+        this.topic = topic;
+        this.isRead = isRead;
+        this.dateTime = dateTime;
+        this.auctionWhichConcernsId = auctionWhichConcernsId;
+        this.showSender = showSender;
+        this.showRecipient = showRecipient;
+    }
+
     public Long getId() {
         return id;
     }

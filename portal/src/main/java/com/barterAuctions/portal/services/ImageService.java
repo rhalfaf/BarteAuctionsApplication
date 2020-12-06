@@ -19,9 +19,7 @@ public class ImageService {
     }
 
     public Image findById(Long id) {
-      Image i = imageRepository.findById(id).orElseThrow();
-
-
+        Image i = imageRepository.findById(id).orElseThrow();
         return i;
     }
 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -22,7 +23,7 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Optional<Category> findByName(String name) {
+    public Optional<Category> findByName(String name) throws NoSuchElementException {
         return categoryRepository.findByCategoryName(name);
     }
 

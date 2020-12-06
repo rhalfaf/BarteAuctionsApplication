@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -43,13 +44,13 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public void registerNewUser(User user, String confirmPassword) {
+    public User registerNewUser(User user, String confirmPassword) {
         validPasswordsAreIdentical(user.getPassword(), confirmPassword);
         validIsUnique(user);
         user.setEnabled(true);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setAuthorities(new Authorities(user, roleRepository.findByRole("ROLE_USER")));
-        userRepository.saveAndFlush(user);
+        return userRepository.saveAndFlush(user);
     }
 
     private void validPasswordsAreIdentical(String password, String repeatedPassword) {
@@ -72,17 +73,17 @@ public class UserService implements UserDetailsService {
         return userRepository.findByAuctions(auctionEntity);
     }
 
-    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllActiveAuctionsOfAUser(String username){
+    public List<AuctionDTO> findAllActiveAuctionsOfAUser(String username) {
         User user = userRepository.findByName(username);
-        if(user == null){
+        if (user == null) {
             throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
         }
         return user.getAuctions().stream().filter(Auction::isActive).map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
 
-    public List<com.barterAuctions.portal.models.DTO.AuctionDTO> findAllAuctionsOfAUser(String username){
+    public List<AuctionDTO> findAllAuctionsOfAUser(String username) {
         User user = userRepository.findByName(username);
-        if(user == null){
+        if (user == null) {
             throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
         }
         return user.getAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
@@ -95,7 +96,7 @@ public class UserService implements UserDetailsService {
         if (userRepository.findByObservedAuctionsAndName(auction, user.getName()) != null) {
             throw new IllegalStateException("Już obserwujęsz wybraną auckję.");
         } else {
-            user.getObservedAuctions().add( modelMapper.map(auction, Auction.class));
+            user.getObservedAuctions().add(auction);
         }
     }
 
@@ -105,11 +106,11 @@ public class UserService implements UserDetailsService {
 
         User user = userRepository.findByName(username);
         if (user == null) {
-            throw new UsernameNotFoundException("Użytkownik o podanej nazwie nie isteniej");
+            throw new UsernameNotFoundException("Użytkownik o podanej nazwie nie isteniej.");
         }
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(), user.isEnabled(), true, true,
-                true, (Collection<? extends GrantedAuthority>) user.getAuthorities());
+                user.getName(), user.getPassword(), user.isEnabled(), true, true,
+                true, new ArrayList<>(List.of(user.getAuthorities())));
     }
 }

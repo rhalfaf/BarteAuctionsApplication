@@ -32,7 +32,6 @@ public class MessageService {
     }
 
     public List<Message> getReceiptedMessages(String recipient){
-
         return repository.findAllByRecipient(recipient).stream().filter(Message::isShowRecipient).collect(Collectors.toList());
     }
 
@@ -41,7 +40,7 @@ public class MessageService {
         return repository.findAllBySender(sender).stream().filter(Message::isShowSender).collect(Collectors.toList());
     }
 
-    public void setMessageAsReaded(Long id){
+    public void setMessageAsRead(Long id){
         repository.changeMessageReadStatus(id);
     }
 

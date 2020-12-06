@@ -11,13 +11,9 @@ public class Role {
     public Role() {
     }
 
- /*   public long getId() {
-        return id;
+    public Role(String role) {
+        this.role = role;
     }
-
-    public void setId(long id) {
-        this.id = id;
-    }*/
 
     public String getRole() {
         return role;
