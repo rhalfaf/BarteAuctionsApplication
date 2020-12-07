@@ -12,6 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -35,7 +36,7 @@ class MessageServiceTest {
         //when
         List<Message> result = messageService.findAllBySender("user");
         //then
-        Assertions.assertEquals(result.get(0), message1);
+        assertEquals(result.get(0), message1);
     }
 
     @Test
@@ -43,7 +44,7 @@ class MessageServiceTest {
         //when
         List<Message> result = messageService.findAllBySender("user");
         //then
-        Assertions.assertEquals(result.get(0), message1);
+        assertEquals(result.get(0), message1);
     }
 
     @Test
@@ -51,7 +52,7 @@ class MessageServiceTest {
         //when
         messageService.sendMessage(message1);
         //then
-        Assertions.assertNotNull(message1.getDateTime());
+        assertNotNull(message1.getDateTime());
         verify(messagesRepository, times(1)).saveAndFlush(message1);
     }
 
@@ -63,7 +64,7 @@ class MessageServiceTest {
         //when
         List<Message> result = messageService.getReceiptedMessages("user");
         //then
-        Assertions.assertEquals(1,result.size());
+        assertEquals(1,result.size());
         verify(messagesRepository, times(1)).findAllByRecipient("user");
 
     }
@@ -74,7 +75,7 @@ class MessageServiceTest {
         //when
         List<Message> result = messageService.getSentMessages("user");
         //then
-        Assertions.assertEquals(1,result.size());
+        assertEquals(1,result.size());
         verify(messagesRepository, times(1)).findAllBySender("user");
     }
 
@@ -94,7 +95,7 @@ class MessageServiceTest {
         String result = messageService.readMessageById(1L);
         //then
         verify(messagesRepository, times(1)).changeMessageReadStatus(1L);
-        Assertions.assertEquals("test",result);
+        assertEquals("test",result);
 
     }
 

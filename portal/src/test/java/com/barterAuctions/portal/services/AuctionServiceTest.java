@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -61,15 +62,15 @@ class AuctionServiceTest {
         //when
         AuctionDTO auctionDTOFromDummyAuction = auctionService.findById(1L);
         //then
-        Assertions.assertEquals(dummyAuction1.getTitle(), auctionDTOFromDummyAuction.getTitle());
-        Assertions.assertEquals(dummyAuction1.getDescription(), auctionDTOFromDummyAuction.getDescription());
-        Assertions.assertEquals(dummyAuction1.getId(), auctionDTOFromDummyAuction.getId());
+        assertEquals(dummyAuction1.getTitle(), auctionDTOFromDummyAuction.getTitle());
+        assertEquals(dummyAuction1.getDescription(), auctionDTOFromDummyAuction.getDescription());
+        assertEquals(dummyAuction1.getId(), auctionDTOFromDummyAuction.getId());
     }
 
     @Test
     void when_findById_is_called_return_NoSuchElementException() {
         //then
-        Assertions.assertThrows(NoSuchElementException.class, () -> auctionService.findById(1L));
+        assertThrows(NoSuchElementException.class, () -> auctionService.findById(1L));
 
     }
 
@@ -83,8 +84,8 @@ class AuctionServiceTest {
         //when
         Page<AuctionDTO> result = auctionService.searchAuctionsPageable("test", Pageable.unpaged());
         //then
-        Assertions.assertEquals( 1,result.getSize());
-        Assertions.assertEquals(AuctionDTO.class, result.get().findFirst().get().getClass());
+        assertEquals( 1,result.getSize());
+        assertEquals(AuctionDTO.class, result.get().findFirst().get().getClass());
     }
 
     @Test
@@ -94,7 +95,7 @@ class AuctionServiceTest {
         //when
         User userTest = auctionService.findAuctionOwner(auctionDTO);
         //then
-        Assertions.assertEquals(userTest, user);
+        assertEquals(userTest, user);
 
     }
 
@@ -110,13 +111,13 @@ class AuctionServiceTest {
         //when
         Page<AuctionDTO> result = auctionService.findAllByCategoryPageable(dummyCategory.getCategoryName(),Pageable.unpaged());
         //then
-        Assertions.assertEquals(2,result.getSize());
-        Assertions.assertTrue(result.stream().noneMatch(dto -> (!dto.isActive())));
+        assertEquals(2,result.getSize());
+        assertTrue(result.stream().noneMatch(dto -> (!dto.isActive())));
     }
     @Test
     void should_throw_NoSuchElementException(){
         when(auctionRepositoryMock.findAllByCategoryAndActive(any(Category.class),anyBoolean(),any(Pageable.class))).thenThrow(NoSuchElementException.class);
-        Assertions.assertThrows(NoSuchElementException.class,() -> auctionService.findAllByCategoryPageable("Motoryzacja",Pageable.unpaged()));
+        assertThrows(NoSuchElementException.class,() -> auctionService.findAllByCategoryPageable("Motoryzacja",Pageable.unpaged()));
     }
 
     @Test
@@ -131,8 +132,8 @@ class AuctionServiceTest {
         //when
         List<AuctionDTO> auctionForMainPage = auctionService.getAuctionsForMainPage(2);
         //then
-        Assertions.assertTrue(auctionForMainPage.get(0) instanceof AuctionDTO);
-        Assertions.assertEquals(2, auctionForMainPage.size());
+        assertTrue(auctionForMainPage.get(0) instanceof AuctionDTO);
+        assertEquals(2, auctionForMainPage.size());
 
     }
     @Test
@@ -145,7 +146,7 @@ class AuctionServiceTest {
         //when
         List<AuctionDTO> auctionForMainPage = auctionService.getAuctionsForMainPage(2);
         //then
-        Assertions.assertEquals(1, auctionForMainPage.size());
+        assertEquals(1, auctionForMainPage.size());
 
     }
 
@@ -157,7 +158,7 @@ class AuctionServiceTest {
         //when
         Auction a = auctionService.save(dummyAuction1);
         //then
-        Assertions.assertEquals(a,dummyAuction1);
+        assertEquals(a,dummyAuction1);
     }
 
     @Test
@@ -170,9 +171,9 @@ class AuctionServiceTest {
         //when
         AuctionDTO a = auctionService.addNewAuction(dummyAuctionDTO1,"testCategory","user",new MultipartFile[0]);
         //then
-        Assertions.assertEquals("testCategory", a.getCategory().getCategoryName());
-        Assertions.assertTrue(user.getAuctions().contains(dummyAuction3));
-        Assertions.assertEquals(a.getTitle(),dummyAuctionDTO1.getTitle());
+        assertEquals("testCategory", a.getCategory().getCategoryName());
+        assertTrue(user.getAuctions().contains(dummyAuction3));
+        assertEquals(a.getTitle(),dummyAuctionDTO1.getTitle());
     }
 
     @Test
@@ -184,8 +185,8 @@ class AuctionServiceTest {
         //when
         List<AuctionDTO> observedAuctions = auctionService.observedAuctions("user");
         //then
-        Assertions.assertEquals(1,observedAuctions.size());
-        Assertions.assertEquals(dummyAuction1.getTitle(), observedAuctions.get(0).getTitle());
+        assertEquals(1,observedAuctions.size());
+        assertEquals(dummyAuction1.getTitle(), observedAuctions.get(0).getTitle());
     }
 
     @Test
@@ -199,7 +200,7 @@ class AuctionServiceTest {
         //when
         List<AuctionDTO> updatedList = auctionService.stopObserveAuction("user", 1L);
         //then
-        Assertions.assertEquals(1, user.getObservedAuctions().size());
+        assertEquals(1, user.getObservedAuctions().size());
         verify(auctionRepositoryMock,times(1)).findById(1L);
 
     }
@@ -215,7 +216,7 @@ class AuctionServiceTest {
         //when
         List<AuctionDTO> updatedList = auctionService.stopObserveAuction("user", 12L);
         //then
-        Assertions.assertEquals(2,user.getObservedAuctions().size());
+        assertEquals(2,user.getObservedAuctions().size());
 
     }
 
@@ -226,7 +227,7 @@ class AuctionServiceTest {
         //when
         auctionService.deleteAuction(1L);
         //then
-        Assertions.assertFalse(dummyAuction1.isActive());
+        assertFalse(dummyAuction1.isActive());
     }
 
     @Test
@@ -237,9 +238,9 @@ class AuctionServiceTest {
         //when
         auctionService.reIssueAuction(1L);
         //then
-        Assertions.assertTrue(dummyAuction3.isActive());
-        Assertions.assertTrue(dummyAuction3.getStartDate().isEqual(LocalDate.now()));
-        Assertions.assertTrue(dummyAuction3.getExpireDate().isEqual(LocalDate.now().plusDays(7)));
+        assertTrue(dummyAuction3.isActive());
+        assertTrue(dummyAuction3.getStartDate().isEqual(LocalDate.now()));
+        assertTrue(dummyAuction3.getExpireDate().isEqual(LocalDate.now().plusDays(7)));
 
     }
 

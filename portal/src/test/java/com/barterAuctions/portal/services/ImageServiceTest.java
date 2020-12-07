@@ -32,13 +32,14 @@ class ImageServiceTest {
         //when
         Image result = imageService.findById(1L);
         //then
-        Assertions.assertEquals(image.getName(), result.getName());
+        assertEquals(image.getName(), result.getName());
     }
 
     @Test
     void should_throw_NoSuchElementException() {
         //then
-        Assertions.assertThrows(NoSuchElementException.class, ()->imageService.findById(1L));
+
+        assertThrows(NoSuchElementException.class, ()->imageService.findById(1L));
     }
 
     @Test
@@ -48,6 +49,6 @@ class ImageServiceTest {
         //when
         Image result = imageRepository.save(image);
         //then
-        Assertions.assertEquals(result,image);
+        assertEquals(result,image);
     }
 }

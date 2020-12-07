@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,7 +53,7 @@ class UserServiceTest {
         //when
         User result = userService.findByName("test");
         //then
-        Assertions.assertEquals(dummyUser.getName(), result.getName());
+        assertEquals(dummyUser.getName(), result.getName());
     }
 
     @Test
@@ -66,16 +67,16 @@ class UserServiceTest {
         //when
         User result = userService.registerNewUser(dummyUser,"test");
         //then
-        Assertions.assertNotNull(result.getAuthorities());
-        Assertions.assertTrue(result.getEnabled());
-        Assertions.assertEquals(dummyUser.getName(),result.getName());
-        Assertions.assertEquals(dummyUser.getAuthorities().getRole().getRole(),"test_role");
+        assertNotNull(result.getAuthorities());
+        assertTrue(result.getEnabled());
+        assertEquals(dummyUser.getName(),result.getName());
+        assertEquals(dummyUser.getAuthorities().getRole().getRole(),"test_role");
     }
 
     @Test
     void should_throw_IllegalStateException_when_pass_different_password_for_confirmation() {
         //then
-        Assertions.assertThrows(IllegalStateException.class,()->userService.registerNewUser(dummyUser,"wrong password"),"Hasła muszą być identyczne");
+        assertThrows(IllegalStateException.class,()->userService.registerNewUser(dummyUser,"wrong password"),"Hasła muszą być identyczne");
     }
 
     @Test
@@ -83,7 +84,7 @@ class UserServiceTest {
         //given
         when(userRepository.existsByName(anyString())).thenReturn(true);
         //then
-        Assertions.assertThrows(IllegalArgumentException.class,()->userService.registerNewUser(dummyUser,"test"),"Użytkownik o podanej nazwie już istnieje.");
+        assertThrows(IllegalArgumentException.class,()->userService.registerNewUser(dummyUser,"test"),"Użytkownik o podanej nazwie już istnieje.");
     }
 
     @Test
@@ -92,7 +93,7 @@ class UserServiceTest {
         when(userRepository.existsByName(anyString())).thenReturn(false);
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
         //then
-        Assertions.assertThrows(IllegalArgumentException.class,()->userService.registerNewUser(dummyUser,"test"),"Podany email jest już zarejstrowany.");
+        assertThrows(IllegalArgumentException.class,()->userService.registerNewUser(dummyUser,"test"),"Podany email jest już zarejstrowany.");
     }
 
     @Test
@@ -102,7 +103,7 @@ class UserServiceTest {
         //when
         User result = userService.findAuctionOwner(dummyDTO);
         //then
-        Assertions.assertEquals(result.getName(),dummyUser.getName());
+        assertEquals(result.getName(),dummyUser.getName());
         verify(modelMapper, times(1)).map(dummyDTO, Auction.class);
     }
 
@@ -114,9 +115,9 @@ class UserServiceTest {
         //when
         List<AuctionDTO> result = userService.findAllActiveAuctionsOfAUser("user");
         //then
-        Assertions.assertEquals(1,result.size());
-        Assertions.assertTrue(result.get(0).isActive());
-        Assertions.assertEquals(result.get(0).getTitle(), "dummy auction1");
+        assertEquals(1,result.size());
+        assertTrue(result.get(0).isActive());
+        assertEquals(result.get(0).getTitle(), "dummy auction1");
     }
 
     @Test
@@ -124,8 +125,8 @@ class UserServiceTest {
         //given
         when(userRepository.findByName(anyString())).thenReturn(null);
         //then
-        Assertions.assertThrows(NoSuchElementException.class,()->userService.findAllActiveAuctionsOfAUser("user"),"Użytkownik o podanej nazwie nie istniej.");
-        Assertions.assertThrows(NoSuchElementException.class,()->userService.findAllAuctionsOfAUser("user"),"Użytkownik o podanej nazwie nie istniej.");
+        assertThrows(NoSuchElementException.class,()->userService.findAllActiveAuctionsOfAUser("user"),"Użytkownik o podanej nazwie nie istniej.");
+        assertThrows(NoSuchElementException.class,()->userService.findAllAuctionsOfAUser("user"),"Użytkownik o podanej nazwie nie istniej.");
     }
 
     @Test
@@ -136,11 +137,11 @@ class UserServiceTest {
         //when
         List<AuctionDTO> result = userService.findAllAuctionsOfAUser("user");
         //then
-        Assertions.assertEquals(2,result.size());
-        Assertions.assertTrue(result.get(0).isActive());
-        Assertions.assertFalse(result.get(1).isActive());
-        Assertions.assertEquals(result.get(0).getTitle(), "dummy auction1");
-        Assertions.assertEquals(result.get(1).getTitle(), "dummy auction2");
+        assertEquals(2,result.size());
+        assertTrue(result.get(0).isActive());
+        assertFalse(result.get(1).isActive());
+        assertEquals(result.get(0).getTitle(), "dummy auction1");
+        assertEquals(result.get(1).getTitle(), "dummy auction2");
 
     }
 
@@ -153,7 +154,7 @@ class UserServiceTest {
         //when
         userService.addAuctionToObserved("user",1L);
         //then
-        Assertions.assertTrue(dummyUser.getObservedAuctions().contains(dummyAuction1));
+        assertTrue(dummyUser.getObservedAuctions().contains(dummyAuction1));
 
     }
 
@@ -164,7 +165,7 @@ class UserServiceTest {
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(dummyAuction1));
         when(userRepository.findByObservedAuctionsAndName(any(Auction.class),anyString())).thenReturn(dummyUser);
         //then
-        Assertions.assertThrows(IllegalStateException.class,()->userService.addAuctionToObserved("user",1L),"Już obserwujęsz wybraną auckję.");
+        assertThrows(IllegalStateException.class,()->userService.addAuctionToObserved("user",1L),"Już obserwujęsz wybraną auckję.");
     }
 
     @Test
@@ -172,7 +173,7 @@ class UserServiceTest {
         //given
         when(userRepository.findByName("user")).thenReturn(dummyUser);
         //then
-        Assertions.assertThrows(NoSuchElementException.class,()->userService.addAuctionToObserved("user",1L));
+        assertThrows(NoSuchElementException.class,()->userService.addAuctionToObserved("user",1L));
     }
 
     @Test
@@ -184,8 +185,8 @@ class UserServiceTest {
         //when
         UserDetails user = userService.loadUserByUsername("user");
         //then
-        Assertions.assertEquals(dummyUser.getName(),user.getUsername());
-        Assertions.assertEquals(dummyUser.getAuthorities().getRole().getRole(),user.getAuthorities().stream().findFirst().get().getAuthority());
+        assertEquals(dummyUser.getName(),user.getUsername());
+        assertEquals(dummyUser.getAuthorities().getRole().getRole(),user.getAuthorities().stream().findFirst().get().getAuthority());
     }
 
     @Test
@@ -193,7 +194,7 @@ class UserServiceTest {
         //given
         when(userRepository.findByName("user")).thenReturn(null);
         //then
-        Assertions.assertThrows(UsernameNotFoundException.class,() -> userService.loadUserByUsername("user"),"Użytkownik o podanej nazwie nie isteniej." );
+        assertThrows(UsernameNotFoundException.class,() -> userService.loadUserByUsername("user"),"Użytkownik o podanej nazwie nie isteniej." );
 
     }
 
