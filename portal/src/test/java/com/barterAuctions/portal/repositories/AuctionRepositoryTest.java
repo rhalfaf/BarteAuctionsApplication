@@ -2,6 +2,8 @@ package com.barterAuctions.portal.repositories;
 
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Category;
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +81,7 @@ class AuctionRepositoryTest {
         List<Long> result = repository.findAuctionsIdOnly();
         //then
         Assertions.assertEquals(1,result.size());
-        Assertions.assertEquals(1L,result.get(0));
+        Assertions.assertEquals(dummyAuction1Active.getId(),result.get(0));
     }
 
     @Test
@@ -95,5 +97,10 @@ class AuctionRepositoryTest {
         //then
         result.forEach(auction -> System.out.println(auction.getTitle()));
         Assertions.assertEquals(2,result.getSize());
+    }
+
+    @AfterEach
+    void clearEntityManager(){
+        entityManager.clear();
     }
 }

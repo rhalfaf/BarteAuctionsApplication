@@ -25,8 +25,8 @@ class CategoryRepositoryTest {
     @Autowired
     private CategoryRepository repository;
 
-    Category dummyCategory;
-    Category dummyCategory2;
+    private Category dummyCategory;
+    private Category dummyCategory2;
 
     @BeforeEach
     void setUp() {
@@ -47,7 +47,7 @@ class CategoryRepositoryTest {
     }
 
     @Test
-    void findByCategoryName() {
+    void should_return_optional_of_category_searched_by_name() {
         //when
         Optional<Category> result =repository.findByCategoryName("test category");
         //then

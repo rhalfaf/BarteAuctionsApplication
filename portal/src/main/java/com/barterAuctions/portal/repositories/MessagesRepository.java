@@ -19,15 +19,15 @@ public interface MessagesRepository extends JpaRepository<Message, Long> {
     @Query("SELECT message FROM Message  WHERE  id = :id")
     String returnMessageTextById(Long id);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update Message m set m.isRead = true where m.id = :id")
     void changeMessageReadStatus(Long id);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update Message m set m.showRecipient = false where m.id = :id")
     void deleteForRecipient(Long id);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update Message m set m.showSender = false where m.id = :id")
     void deleteForSender(Long id);
 
