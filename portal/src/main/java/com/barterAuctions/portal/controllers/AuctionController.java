@@ -46,10 +46,8 @@ public class AuctionController {
         this.modelMapper = modelMapper;
     }
 
-
     @GetMapping("/auction/{id}")
-    public String auction(@PathVariable("id") Long id, Model model) {
-
+    public String getSingleAuction(@PathVariable("id") Long id, Model model) {
         try {
             AuctionDTO auction = auctionService.findById(id);
             model.addAttribute("auction", auction);
@@ -64,12 +62,11 @@ public class AuctionController {
         }
     }
 
-
     @GetMapping("/searchPageable")
-    public String searchPageable(@RequestParam("inParam") String inParam,
-                                 Model model,
-                                 @RequestParam("page") Optional<Integer> page,
-                                 @RequestParam("size") Optional<Integer> size) {
+    public String searchPhrase(@RequestParam("inParam") String inParam,
+                               Model model,
+                               @RequestParam("page") Optional<Integer> page,
+                               @RequestParam("size") Optional<Integer> size) {
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(10);
         Page<AuctionDTO> auctions = auctionService.searchAuctionsPageable(inParam, PageRequest.of(currentPage - 1, pageSize));
@@ -82,24 +79,7 @@ public class AuctionController {
         }
     }
 
-    @GetMapping("/list/{inParam}")
-    String list(@PathVariable("inParam") String inParam,
-                Model model,
-                @RequestParam("page") Optional<Integer> page,
-                @RequestParam("size") Optional<Integer> size) {
-        int currentPage = page.orElse(1);
-        int pageSize = size.orElse(10);
-        try {
-            Page<AuctionDTO> auctions = auctionService.findAllByCategoryPageable(inParam, PageRequest.of(currentPage - 1, pageSize));
-            createModel(inParam, model, auctions);
-            return "itemsByCategory";
-        } catch (NoSuchElementException e) {
-            model.addAttribute("error", "Nie znaleziono kategorii. ");
-            return "index";
-        }
-    }
-
-    private void createModel(String inParam, Model model, Page<AuctionDTO> auctions) {
+    public void createModel(String inParam, Model model, Page<AuctionDTO> auctions) {
         model.addAttribute("auctions", auctions);
         model.addAttribute("inParam", inParam);
         model.addAttribute("totalPages", auctions.getTotalPages());
@@ -109,14 +89,31 @@ public class AuctionController {
         }
     }
 
+    @GetMapping("/list/{inParam}")
+    String listAuctionsByCategory(@PathVariable("inParam") String inParam,
+                                  Model model,
+                                  @RequestParam("page") Optional<Integer> page,
+                                  @RequestParam("size") Optional<Integer> size) {
+        int currentPage = page.orElse(1);
+        int pageSize = size.orElse(10);
+        try {
+            Page<AuctionDTO> auctions = auctionService.findAllByCategoryPageable(inParam, PageRequest.of(currentPage - 1, pageSize));
+            createModel(inParam, model, auctions);
+            return "itemsByCategory";
+        } catch (NoSuchElementException e) {
+            model.addAttribute("error", "Nie znaleziono kategorii.");
+            return "index";
+        }
+    }
+
     @GetMapping("/showAuctions/{user}")
-    String listByUser(@PathVariable String user, Model model) {
+    String listAuctionsByUser(@PathVariable String user, Model model) {
         try {
             List<AuctionDTO> auctions = userService.findAllActiveAuctionsOfAUser(user);
             model.addAttribute("auctions", auctions);
             return "items";
         } catch (NoSuchElementException e) {
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("error", "Użytkownik o podanej nazwie nie istniej.");
             return "index";
         }
     }
@@ -153,14 +150,14 @@ public class AuctionController {
     }
 
     @GetMapping("/getObservedAuctions")
-    public String getObservedAuctions(Model model) {
+    public String stopObserveAuction(Model model) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         model.addAttribute("auctions", auctionService.observedAuctions(userName));
         return "observedAuctions";
     }
 
     @GetMapping("/stopObserve/{id}")
-    public String getObservedAuctions(@PathVariable Long id, Model model) {
+    public String stopObserveAuction(@PathVariable Long id, Model model) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         auctionService.stopObserveAuction(userName, id);
         model.addAttribute("auctions", auctionService.observedAuctions(userName));
@@ -177,10 +174,10 @@ public class AuctionController {
     @PostMapping("/saveAuction")
     public String saveAuction(@Valid @ModelAttribute("auction") AuctionDTO auction,
                               @RequestParam("categoryName") String category,
-                              @RequestParam("auctionImages") MultipartFile[] images,
+                              @RequestParam(value = "auctionImages", required = false) MultipartFile[] images,
                               BindingResult result,
                               Model model) {
-        if (Arrays.stream(images).sequential().anyMatch(file -> (file.getSize() > maxFileSize))) {
+        if (images != null && Arrays.stream(images).sequential().anyMatch(file -> (file.getSize() > maxFileSize))) {
             model.addAttribute("error", "Plik ma za duży rozmiar, maksymalny rozmair to " + maxFileSize / 1024 / 1024 + " Mb.");
             return "addNewAuction";
         }
@@ -209,11 +206,9 @@ public class AuctionController {
         return "redirect:/myItems";
     }
 
-
     @GetMapping("/getImage/{id}")
     @ResponseBody
-    void showImage(@PathVariable("id") Long id, HttpServletResponse response, Optional<Image> image)
-            throws IOException {
+    void showImage(@PathVariable("id") Long id, HttpServletResponse response, Optional<Image> image) throws IOException {
         if (id != null) {
             try {
                 image = Optional.ofNullable(imageService.findById(id));
@@ -229,7 +224,6 @@ public class AuctionController {
             }
         }
     }
-
 
 }
 

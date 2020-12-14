@@ -76,7 +76,7 @@ public class UserService implements UserDetailsService {
     public List<AuctionDTO> findAllActiveAuctionsOfAUser(String username) {
         User user = userRepository.findByName(username);
         if (user == null) {
-            throw new NoSuchElementException("Użytkownik o podanej nazwie nie istniej.");
+            throw new NoSuchElementException();
         }
         return user.getAuctions().stream().filter(Auction::isActive).map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
