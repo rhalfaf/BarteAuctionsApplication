@@ -1,6 +1,7 @@
 package com.barterAuctions.portal.controllers;
 
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
+import com.barterAuctions.portal.models.auction.Category;
 import com.barterAuctions.portal.models.messages.Message;
 import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.services.AuctionService;
@@ -45,8 +46,9 @@ public class IndexController
     public void addAttributes(Model model) {
         auctionsForMainPage = auctionService.getAuctionsForMainPage(6);
         model.addAttribute("thumbnails", auctionsForMainPage);
-        model.addAttribute("categories", categoryService.findAll().stream().map(category -> category.getCategoryName()).collect(Collectors.toList()));
+        model.addAttribute("categories", categoryService.findAll().stream().map(Category::getCategoryName).collect(Collectors.toList()));
     }
+
     @PreAuthorize("isAuthenticated()")
     @ModelAttribute
     public boolean areSomeMessagesUnread(Model model){
@@ -70,11 +72,5 @@ public class IndexController
     String indexPost() {
         return "index";
     }
-
-    @GetMapping("/gallery")
-    public String gallery(){
-        return "gallery";
-    }
-
 
 }

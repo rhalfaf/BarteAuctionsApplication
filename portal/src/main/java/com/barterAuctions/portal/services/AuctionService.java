@@ -1,5 +1,6 @@
 package com.barterAuctions.portal.services;
 
+import com.barterAuctions.portal.config.customExceptions.UnauthorizedAccessException;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Image;
@@ -9,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,7 +34,7 @@ public class AuctionService {
     List<AuctionDTO> randomAuctions = new ArrayList<>();
 
     @Autowired
-    public AuctionService( AuctionRepository auctionRepository, UserService userService, ModelMapper modelMapper, CategoryService categoryService) {
+    public AuctionService(AuctionRepository auctionRepository, UserService userService, ModelMapper modelMapper, CategoryService categoryService) {
         this.auctionRepository = auctionRepository;
         this.userService = userService;
         this.modelMapper = modelMapper;
@@ -40,19 +42,16 @@ public class AuctionService {
     }
 
     public AuctionDTO findById(Long id) throws NoSuchElementException {
-            Auction auction = auctionRepository.findById(id).orElseThrow();
-            if(!auction.isActive()){
-                throw new NoSuchElementException();
-            }
-            return modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
+        Auction auction = auctionRepository.findById(id).orElseThrow();
+        if (!auction.isActive()) {
+            throw new NoSuchElementException();
+        }
+        return modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
     }
 
-    public Optional<Auction> tmpFindById(Long id) {
-        return auctionRepository.findById(id);
-    }
 
-    public Page<AuctionDTO> searchAuctionsPageable(String searchPhrase, Pageable pageable){
-        Page<Auction> auctions = auctionRepository.findAllByActiveTrueAndTitleIgnoreCaseContainingOrActiveTrueAndDescriptionIgnoreCaseContaining(searchPhrase,searchPhrase , pageable);
+    public Page<AuctionDTO> searchAuctionsPageable(String searchPhrase, Pageable pageable) {
+        Page<Auction> auctions = auctionRepository.findAllByActiveTrueAndTitleIgnoreCaseContainingOrActiveTrueAndDescriptionIgnoreCaseContaining(searchPhrase, searchPhrase, pageable);
         Page<AuctionDTO> auctionDTOs = auctions.map(AuctionDTO::new);
         return auctionDTOs;
     }
@@ -63,14 +62,14 @@ public class AuctionService {
 
     public Page<AuctionDTO> findAllByCategoryPageable(String category, Pageable pageable) throws NoSuchElementException {
         var tmpCategory = categoryService.findByName(category).orElseThrow();
-        Page<Auction> auctions = auctionRepository.findAllByCategoryAndActive(tmpCategory,true, pageable);
+        Page<Auction> auctions = auctionRepository.findAllByCategoryAndActive(tmpCategory, true, pageable);
         return auctions.map(AuctionDTO::new);
     }
 
     public List<AuctionDTO> getAuctionsForMainPage(int numberOfElements) {
         List<Long> idsList = auctionRepository.findAuctionsIdOnly();
         Random random = new Random();
-        if(!randomAuctions.isEmpty()){
+        if (!randomAuctions.isEmpty()) {
             return randomAuctions;
         }
         if (numberOfElements > idsList.size()) {
@@ -117,6 +116,7 @@ public class AuctionService {
         return modelMapper.map(entityAuction, com.barterAuctions.portal.models.DTO.AuctionDTO.class);
     }
 
+
     public List<AuctionDTO> observedAuctions(String userName) {
         User user = userService.findByName(userName);
         return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
@@ -133,20 +133,36 @@ public class AuctionService {
         }
         return user.getObservedAuctions().stream().map(auction -> modelMapper.map(auction, com.barterAuctions.portal.models.DTO.AuctionDTO.class)).collect(Collectors.toList());
     }
+
     @Transactional
-    public void deleteAuction(Long auctionId) {
-        auctionRepository.findById(auctionId).orElseThrow(()-> new NoSuchElementException("Nie znaleziono auckji.")).setActive(false);
+    public void deleteAuction(Long auctionId) throws UnauthorizedAccessException {
+        Auction a = auctionRepository.findById(auctionId).orElseThrow(() -> new NoSuchElementException("Nie znaleziono auckji."));
+        if (verifyPrincipals(a.getUser())) {
+            a.setActive(false);
+        } else {
+            throw new UnauthorizedAccessException("Nie masz uprawnień do wykonania tej akcji.");
+        }
+
     }
+
     @Transactional
-    public void reIssueAuction(Long auctionId) {
-        var auction = auctionRepository.findById(auctionId).orElseThrow(()-> new NoSuchElementException("Nie znaleziono auckji."));
-        auction.setActive(true);
-        auction.setStartDate(LocalDate.now());
-        auction.setExpireDate(auction.getStartDate().plusDays(7));
+    public void reIssueAuction(Long auctionId) throws UnauthorizedAccessException {
+        var auction = auctionRepository.findById(auctionId).orElseThrow(() -> new NoSuchElementException("Nie znaleziono auckji."));
+        if (verifyPrincipals(auction.getUser())) {
+            auction.setActive(true);
+            auction.setStartDate(LocalDate.now());
+            auction.setExpireDate(auction.getStartDate().plusDays(7));
+        }else {
+            throw new UnauthorizedAccessException();
+        }
     }
 
-
-
-
-
+    private boolean verifyPrincipals(User user) {
+        String loggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (user.getName().equals(loggedUser)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

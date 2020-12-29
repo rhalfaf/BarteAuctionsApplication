@@ -3,6 +3,7 @@ package com.barterAuctions.portal.models.DTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Category;
 import com.barterAuctions.portal.models.auction.Image;
+import com.barterAuctions.portal.models.user.User;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.FetchType;
@@ -22,6 +23,7 @@ public class AuctionDTO {
     private BigDecimal price;
     private Category category;
     private Boolean active;
+    private User user;
 
     public AuctionDTO() {
     }
@@ -35,6 +37,7 @@ public class AuctionDTO {
         this.price = auction.getPrice();
         this.category = auction.getCategory();
         this.active = auction.isActive();
+        this.user = auction.getUser();
     }
 
     public Long getId() {
@@ -99,5 +102,13 @@ public class AuctionDTO {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

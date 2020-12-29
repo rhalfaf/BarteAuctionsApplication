@@ -1,5 +1,6 @@
 package com.barterAuctions.portal.controllers;
 
+import com.barterAuctions.portal.config.customExceptions.UnauthorizedAccessException;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.auction.Image;
 import com.barterAuctions.portal.models.messages.Message;
@@ -190,17 +191,23 @@ public class AuctionController {
     }
 
     @PostMapping("/deleteAuction")
-    public String deleteAuction(@RequestParam("auctionId") Long auctionId) {
-        auctionService.deleteAuction(auctionId);
+    public String deleteAuction(@RequestParam("auctionId") Long auctionId, RedirectAttributes redirectAttributes) {
+        try {
+            auctionService.deleteAuction(auctionId);
+        } catch (UnauthorizedAccessException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/";
+        }
+
         return "redirect:/myItems";
     }
 
     @PostMapping("/re-issue")
-    public String reIssueAuction(@RequestParam("auctionId") Long auctionId, Model model) {
+    public String reIssueAuction(@RequestParam("auctionId") Long auctionId, RedirectAttributes redirectAttributes) {
         try {
             auctionService.reIssueAuction(auctionId);
-        } catch (NoSuchElementException e) {
-            model.addAttribute("error", e.getMessage());
+        } catch (NoSuchElementException | UnauthorizedAccessException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/myItems";
         }
         return "redirect:/myItems";
@@ -216,7 +223,7 @@ public class AuctionController {
                 response.getOutputStream().write(image.get().getImageByte());
                 response.getOutputStream().close();
             } catch (NoSuchElementException e) {
-                image = Optional.ofNullable(imageService.findById((long) 97));
+                image = Optional.of(new Image("No photo", false, "JPG", new byte[0]));
                 response.setContentType("image/jpeg, image/jpg, image/png");
                 response.getOutputStream().write(image.get().getImageByte());
                 response.getOutputStream().close();

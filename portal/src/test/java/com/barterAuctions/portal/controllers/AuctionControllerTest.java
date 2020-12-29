@@ -1,5 +1,6 @@
 package com.barterAuctions.portal.controllers;
 
+import com.barterAuctions.portal.config.customExceptions.UnauthorizedAccessException;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Category;
@@ -7,7 +8,7 @@ import com.barterAuctions.portal.models.messages.Message;
 import com.barterAuctions.portal.models.user.Authorities;
 import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.services.*;
-import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -23,7 +24,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -315,11 +315,54 @@ class AuctionControllerTest {
     }
 
     @Test
-    void should_call_auctioService_delete_method_with_pass_param() throws Exception {
+    void should_call_auctionService_delete_method_with_pass_param() throws Exception {
         //when
         mvc.perform(post("/deleteAuction").with(csrf()).param("auctionId", "1"));
         //then
         verify(auctionServiceMock).deleteAuction(1L);
+    }
+
+    @Test
+    void should_catch_UnauthorizedAccess_and_redirect_to_index() throws Exception {
+        doThrow(new UnauthorizedAccessException()).when(auctionServiceMock).deleteAuction(anyLong());
+        //when
+        ResultActions result = mvc.perform(post("/deleteAuction").with(csrf()).param("auctionId", "1"));
+        //then
+        verify(auctionServiceMock).deleteAuction(1L);
+        result.andExpect(flash().attribute("error", "Nie masz uprawnień do wykonania tej akcji."));
+        result.andExpect(redirectedUrl("/"));
+    }
+
+    @Test
+    void should_change_call_service_to_change_status_to_active_true_if_no_error_occur() throws Exception {
+        //when
+        ResultActions result = mvc.perform(post("/re-issue").with(csrf()).param("auctionId", "1"));
+        //then
+        verify(auctionServiceMock).reIssueAuction(1L);
+        result.andExpect(redirectedUrl("/myItems"));
+    }
+
+    @Test
+    void should_catch_NoSuchElementException_thrown_up_by_AuctionService() throws Exception {
+        doThrow(new NoSuchElementException("Test exception")).when(auctionServiceMock).reIssueAuction(anyLong());
+        //when
+        ResultActions result = mvc.perform(post("/re-issue").with(csrf()).param("auctionId", "1"));
+        //then
+        verify(auctionServiceMock).reIssueAuction(1L);
+        result.andExpect(flash().attributeExists("error"));
+        result.andExpect(redirectedUrl("/myItems"));
+    }
+
+    @Test
+    void should_catch_UnauthorizedAccessException_thrown_up_by_AuctionService() throws Exception {
+        doThrow(new UnauthorizedAccessException()).when(auctionServiceMock).reIssueAuction(anyLong());
+        //when
+        ResultActions result = mvc.perform(post("/re-issue").with(csrf()).param("auctionId", "1"));
+        //then
+        verify(auctionServiceMock).reIssueAuction(1L);
+        result.andExpect(flash().attributeExists("error"));
+        result.andExpect(flash().attribute("error", "Nie masz uprawnień do wykonania tej akcji."));
+        result.andExpect(redirectedUrl("/myItems"));
     }
 
 }

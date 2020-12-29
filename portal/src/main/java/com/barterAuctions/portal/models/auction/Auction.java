@@ -40,7 +40,6 @@ public class Auction {
     public Auction(Long id, String localization, String title, String description,
                    List<Image> images, BigDecimal price, Boolean active, LocalDate startDate,
                    LocalDate expireDate, Category category, User user) {
-
         this.id = id;
         this.localization = localization;
         this.title = title;

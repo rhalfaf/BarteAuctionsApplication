@@ -1,11 +1,11 @@
 package com.barterAuctions.portal.services;
 
+import com.barterAuctions.portal.config.customExceptions.UnauthorizedAccessException;
 import com.barterAuctions.portal.models.DTO.AuctionDTO;
 import com.barterAuctions.portal.models.auction.Auction;
 import com.barterAuctions.portal.models.auction.Category;
 import com.barterAuctions.portal.models.user.User;
 import com.barterAuctions.portal.repositories.AuctionRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +15,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
@@ -40,15 +43,15 @@ class AuctionServiceTest {
     private Auction dummyAuction3;
     private AuctionDTO dummyAuctionDTO1;
     private AuctionDTO auctionDTO;
-    private User user;
+    private User dummyUser;
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        user.setName("testUser");
+        dummyUser = new User();
+        dummyUser.setName("testUser");
         dummyCategory = new Category("testCategory");
-        dummyAuction1 = new Auction(1L, "Warsaw", "dummy auction1", "foo bar", Collections.emptyList(), new BigDecimal(0), true, LocalDate.now(), LocalDate.now().plusDays(7), dummyCategory, user);
-        dummyAuction2 = new Auction(1L, "Warsaw", "dummy auction2", "foo bar", Collections.emptyList(), new BigDecimal(0), true, LocalDate.now(), LocalDate.now().plusDays(7), dummyCategory, user);
+        dummyAuction1 = new Auction(1L, "Warsaw", "dummy auction1", "foo bar", Collections.emptyList(), new BigDecimal(0), true, LocalDate.now(), LocalDate.now().plusDays(7), dummyCategory, dummyUser);
+        dummyAuction2 = new Auction(1L, "Warsaw", "dummy auction2", "foo bar", Collections.emptyList(), new BigDecimal(0), true, LocalDate.now(), LocalDate.now().plusDays(7), dummyCategory, dummyUser);
         dummyAuction3 = new Auction(1L, "Warsaw", "dummy auction3", "foo bar", Collections.emptyList(), new BigDecimal(0), true, null, null, null, null);
         dummyAuctionDTO1 = new AuctionDTO();
         auctionDTO = new AuctionDTO(dummyAuction1);
@@ -91,11 +94,11 @@ class AuctionServiceTest {
     @Test
     void should_return_auction_owner_object_User() {
         //given
-        when(userService.findAuctionOwner(any(AuctionDTO.class))).thenReturn(user);
+        when(userService.findAuctionOwner(any(AuctionDTO.class))).thenReturn(dummyUser);
         //when
         User userTest = auctionService.findAuctionOwner(auctionDTO);
         //then
-        assertEquals(userTest, user);
+        assertEquals(userTest, dummyUser);
 
     }
 
@@ -165,23 +168,23 @@ class AuctionServiceTest {
     void should_return_auction_dto_add_auction_to_user_set_category_for_auction() {
         //given
         when(categoryService.findByName(dummyCategory.getCategoryName())).thenReturn(Optional.of(dummyCategory));
-        when(userService.findByName("user")).thenReturn(user);
+        when(userService.findByName("user")).thenReturn(dummyUser);
         when(auctionRepositoryMock.save(any(Auction.class))).thenReturn(dummyAuction3);
-        user.setAuctions(new ArrayList<Auction>());
+        dummyUser.setAuctions(new ArrayList<Auction>());
         //when
         AuctionDTO a = auctionService.addNewAuction(dummyAuctionDTO1,"testCategory","user",new MultipartFile[0]);
         //then
         assertEquals("testCategory", a.getCategory().getCategoryName());
-        assertTrue(user.getAuctions().contains(dummyAuction3));
+        assertTrue(dummyUser.getAuctions().contains(dummyAuction3));
         assertEquals(a.getTitle(),dummyAuctionDTO1.getTitle());
     }
 
     @Test
     void should_return_observed_auctions_list() {
         //given
-        user.setObservedAuctions(new ArrayList<>());
-        user.getObservedAuctions().add(dummyAuction1);
-        when(userService.findByName("user")).thenReturn(user);
+        dummyUser.setObservedAuctions(new ArrayList<>());
+        dummyUser.getObservedAuctions().add(dummyAuction1);
+        when(userService.findByName("user")).thenReturn(dummyUser);
         //when
         List<AuctionDTO> observedAuctions = auctionService.observedAuctions("user");
         //then
@@ -192,15 +195,15 @@ class AuctionServiceTest {
     @Test
     void should_remove_auction_from_observed_and_return_updated_list_of_observed_auctions_dtos() {
         //given
-        user.setObservedAuctions(new ArrayList<>());
-        user.getObservedAuctions().add(dummyAuction1);
-        user.getObservedAuctions().add(dummyAuction2);
-        when(userService.findByName("user")).thenReturn(user);
+        dummyUser.setObservedAuctions(new ArrayList<>());
+        dummyUser.getObservedAuctions().add(dummyAuction1);
+        dummyUser.getObservedAuctions().add(dummyAuction2);
+        when(userService.findByName("user")).thenReturn(dummyUser);
         when(auctionRepositoryMock.findById(1L)).thenReturn(Optional.of(dummyAuction1));
         //when
         List<AuctionDTO> updatedList = auctionService.stopObserveAuction("user", 1L);
         //then
-        assertEquals(1, user.getObservedAuctions().size());
+        assertEquals(1, dummyUser.getObservedAuctions().size());
         verify(auctionRepositoryMock,times(1)).findById(1L);
 
     }
@@ -208,21 +211,23 @@ class AuctionServiceTest {
     @Test
     void should_return_observed_auctionsDTOs_list_when_wrong_id() {
         //given
-        user.setObservedAuctions(new ArrayList<>());
-        user.getObservedAuctions().add(dummyAuction1);
-        user.getObservedAuctions().add(dummyAuction2);
-        when(userService.findByName("user")).thenReturn(user);
+        dummyUser.setObservedAuctions(new ArrayList<>());
+        dummyUser.getObservedAuctions().add(dummyAuction1);
+        dummyUser.getObservedAuctions().add(dummyAuction2);
+        when(userService.findByName("user")).thenReturn(dummyUser);
         when(auctionRepositoryMock.findById(1L)).thenReturn(Optional.of(dummyAuction1));
         //when
         List<AuctionDTO> updatedList = auctionService.stopObserveAuction("user", 12L);
         //then
-        assertEquals(2,user.getObservedAuctions().size());
+        assertEquals(2, dummyUser.getObservedAuctions().size());
 
     }
 
     @Test
-    void when_user_delete_auction_set_active_as_false() {
+    void when_user_is_auction_owner_and_send_request_delete_auction_set_active_as_false() throws UnauthorizedAccessException {
         //given
+        SetMockedContextAndAuthentication();
+        when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn("testUser");
         when(auctionRepositoryMock.findById(1L)).thenReturn(Optional.of(dummyAuction1));
         //when
         auctionService.deleteAuction(1L);
@@ -231,9 +236,22 @@ class AuctionServiceTest {
     }
 
     @Test
-    void when_user_reissue_auction_active_should_be_set_as_true_and_set_new_start_and_expire_date() {
+    void when_user_try_send_delete_with_not_own_auction_id_UnauthorizedAccessException_should_be_thrown() {
+        //given
+        SetMockedContextAndAuthentication();
+        when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn("wrong name");
+        when(auctionRepositoryMock.findById(1L)).thenReturn(Optional.of(dummyAuction1));
+        //then
+        assertThrows(UnauthorizedAccessException.class,()->auctionService.deleteAuction(1L),"Nie masz uprawnień do wykonania tej akcji.");
+    }
+
+    @Test
+    void when_user_reissue_auction_active_should_be_set_as_true_and_set_new_start_and_expire_date() throws UnauthorizedAccessException {
         //given
         dummyAuction3.setActive(false);
+        dummyAuction3.setUser(dummyUser);
+        SetMockedContextAndAuthentication();
+        when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn("testUser");
         when(auctionRepositoryMock.findById(1L)).thenReturn(Optional.of(dummyAuction3));
         //when
         auctionService.reIssueAuction(1L);
@@ -241,6 +259,14 @@ class AuctionServiceTest {
         assertTrue(dummyAuction3.isActive());
         assertTrue(dummyAuction3.getStartDate().isEqual(LocalDate.now()));
         assertTrue(dummyAuction3.getExpireDate().isEqual(LocalDate.now().plusDays(7)));
+
+    }
+
+    private void SetMockedContextAndAuthentication() {
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
 
     }
 
