@@ -9,7 +9,7 @@ Web application designed to connect users and allow them barter exchange.
 
 
 ## General info
-Application is designated for users which are interested barter exchange. Main goal is connecting people which have unnecessary items and instead of selling them in a traditional way, 
+Application is designated for users who are interested barter exchange. Main goal is connecting people which have unnecessary items and instead of selling them in a traditional way, 
 they want to exchange for something more interesting.
 Implemented features: 
 * add/remove/reissue auction (easy manage own auctions)
